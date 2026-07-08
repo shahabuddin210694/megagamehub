@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Game Hub</title>
+    
+    <style>
+        body {
+            background-color: #111827;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            padding-bottom: 30px;
+        }
+        .screen-container {
+            background-color: #1f2937;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+        input {
+            width: 85%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #374151;
+            background-color: #374151;
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-primary { background-color: #3b82f6; color: white; }
+        .btn-secondary { background-color: #10b981; color: white; }
+        .btn-ludo { background-color: #eab308; color: black; font-size: 16px;}
+        .btn-poker { background-color: #ec4899; color: white; font-size: 16px;}
+        .status-msg { margin-top: 15px; font-weight: bold; }
+        
+        /* Wallet Design */
+        .wallet-card {
+            background-color: #374151;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #eab308;
+        }
+        .wallet-balance {
+            font-size: 28px;
+            font-weight: bold;
+            color: #eab308;
+            margin: 10px 0;
+        }
+        .wallet-btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .btn-deposit { background-color: #10b981; color: white; padding: 10px; border-radius: 5px; width: 48%; border: none; cursor: pointer; font-weight: bold;}
+        .btn-withdraw { background-color: #ef4444; color: white; padding: 10px; border-radius: 5px; width: 48%; border: none; cursor: pointer; font-weight: bold;}
+        
+        /* Transaction Box */
+        .trans-box {
+            background-color: #1f2937;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border: 1px dashed #9ca3af;
+            display: none; 
+        }
+
+        /* Ludo Board Design */
+        .ludo-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 10px;
+            border: 4px solid #374151;
+        }
+        .ludo-box { width: 100%; height: 100%; border-radius: 5px; }
+        .red-box { background-color: #ef4444; }
+        .green-box { background-color: #10b981; }
+        .blue-box { background-color: #3b82f6; }
+        .yellow-box { background-color: #eab308; }
+        .dice-btn { background-color: #ffffff; color: #000; font-size: 20px; border: 2px solid #000;}
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <div id="loginScreen" class="screen-container">
+        <h1>🎮 Mega Game Hub</h1>
+        <h2>Enter The Arena</h2>
+
+        <input type="email" id="email" placeholder="Email id daalein">
+        <input type="password" id="password" placeholder="Password (kam se kam 6 letters)">
+        
+        <button class="btn-primary" onclick="window.registerUser()">Naya Account Banayein</button>
+        <button class="btn-secondary" onclick="window.loginUser()">Purane Account se Login Karein</button>
+
+        <p class="status-msg" id="statusMessage"></p>
+    </div>
+
+    <div id="gameMenuScreen" class="screen-container" style="display: none;">
+        <h2 id="welcomeText" style="margin-top: 0; color: #60a5fa;">🏆 Welcome!</h2>
+        
+        <div class="wallet-card">
+            <h3 style="margin: 0; color: #9ca3af;">💰 Wallet Balance</h3>
+            <div class="wallet-balance" id="balanceDisplay">₹ 0</div>
+            <div class="wallet-btn-group">
+                <button class="btn-deposit" onclick="window.openTransBox('deposit')">➕ Deposit</button>
+                <button class="btn-withdraw" onclick="window.openTransBox('withdraw')">➖ Withdraw</button>
+            </div>
+
+            <div id="transBox" class="trans-box">
+                <input type="number" id="transAmount" placeholder="Amount daalein (₹)">
+                <button id="confirmDepositBtn" class="btn-primary" onclick="processDeposit()">Add Paise</button>
+                <button id="confirmWithdrawBtn" style="background-color: #ef4444; color: white;" class="btn-secondary" onclick="processWithdraw()">Nikal Lein</button>
+                <button style="background: transparent; color: #9ca3af; border: none; margin-top: 5px; padding: 5px;" onclick="closeTransBox()">❌ Cancel</button>
+            </div>
+        </div>
+
+        <p><b>Tournaments & Games:</b></p>
+        <button class="btn-ludo" onclick="window.startLudoGame()">🎲 Play Ludo (Entry: ₹10)</button>
+        <button class="btn-poker" onclick="alert('Poker Table lag rahi hai!')">🃏 Play Poker (Entry: ₹50)</button>
+        
+        <button style="background-color: transparent; border: 1px solid #ef4444; color: #ef4444; margin-top: 30px;" onclick="window.logoutUser()">🚪 Log Out</button>
+    </div>
+
+    <div id="ludoScreen" class="screen-container" style="display: none;">
+        <h2 style="color: #eab308; margin-top: 0;">🎲 Ludo Tournament</h2>
+        <p>Prize Pool: <b>₹18</b> | Winner Takes All!</p>
+        
+        <div class="ludo-board">
+            <div class="ludo-box red-box"></div>
+            <div class="ludo-box green-box"></div>
+            <div class="ludo-box blue-box"></div>
+            <div class="ludo-box yellow-box"></div>
+        </div>
+
+        <button class="dice-btn" id="diceButton" onclick="rollDice()">Roll Dice 🎲</button>
+        <p id="diceResult" style="font-size: 18px; font-weight: bold;"></p>
+
+        <button style="background-color: transparent; border: 1px solid #ef4444; color: #ef4444; margin-top: 20px;" onclick="window.quitLudoGame()">🏳️ Quit Game</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuw4ABR1Me8_fNdon0DUVOMZBl_39T0pk",
+            authDomain: "megagamehub-6e043.firebaseapp.com",
+            projectId: "megagamehub-6e043",
+            storageBucket: "megagamehub-6e043.firebasestorage.app",
+            messagingSenderId: "770273541911",
+            appId: "1:770273541911:web:b02dca01bbe5a78917c152"
+        };
+        
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+            }
+        } catch (e) {
+            console.log("Firebase Init Error:", e);
+        }
+
+        let userBalance = 0;
+
+        window.showGameMenu = function() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('ludoScreen').style.display = 'none';
+            document.getElementById('gameMenuScreen').style.display = 'block';
+            
+            const user = firebase.auth().currentUser;
+            if (user && user.email) {
+                document.getElementById('welcomeText').innerText = "🏆 Welcome, \n" + user.email.split('@')[0];
+            }
+            document.getElementById('balanceDisplay').innerText = "₹ " + userBalance;
+        };
+
+        window.showLoginScreen = function() {
+            document.getElementById('gameMenuScreen').style.display = 'none';
+            document.getElementById('ludoScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('statusMessage').innerText = '';
+        };
+
+        window.openTransBox = function(type) {
+            document.getElementById('transBox').style.display = 'block';
+            document.getElementById('transAmount').value = ''; 
+            
+            if (type === 'deposit') {
+                document.getElementById('confirmDepositBtn').style.display = 'block';
+                document.getElementById('confirmWithdrawBtn').style.display = 'none';
+            } else {
+                document.getElementById('confirmDepositBtn').style.display = 'none';
+                document.getElementById('confirmWithdrawBtn').style.display = 'block';
+            }
+        };
+
+        window.closeTransBox = function() {
+            document.getElementById('transBox').style.display = 'none';
+        };
+
+        window.processDeposit = function() {
+            let amount = document.getElementById('transAmount').value;
+            if (amount && Number(amount) > 0) {
+                userBalance = userBalance + Number(amount);
+                document.getElementById('balanceDisplay').innerText = "₹ " + userBalance;
+                alert("✅ ₹" + amount + " aapke wallet mein add ho gaye!");
+                closeTransBox();
+            } else {
+                alert("❌ Sahi number daalein!");
+            }
+        };
+
+        window.processWithdraw = function() {
+            let amount = document.getElementById('transAmount').value;
+            if (amount && Number(amount) > 0) {
+                if (Number(amount) > userBalance) {
+                    alert("❌ Aapke wallet mein itne paise nahi hain! Pehle deposit karein.");
+                } else {
+                    userBalance = userBalance - Number(amount);
+                    document.getElementById('balanceDisplay').innerText = "₹ " + userBalance;
+                    alert("⏳ ₹" + amount + " withdrawal request successful! 24 ghante mein bank mein aa jayenge.");
+                    closeTransBox();
+                }
+            } else {
+                alert("❌ Sahi number daalein!");
+            }
+        };
+
+        // --- Ludo Game Functions ---
+        window.startLudoGame = function() {
+            if (userBalance >= 10) {
+                userBalance = userBalance - 10;
+                document.getElementById('balanceDisplay').innerText = "₹ " + userBalance;
+                alert("✅ ₹10 Entry Fee kat gayi hai. Game shuru ho raha hai!");
+                
+                document.getElementById('gameMenuScreen').style.display = 'none';
+                document.getElementById('ludoScreen').style.display = 'block';
+                document.getElementById('diceResult').innerText = "";
+            } else {
+                alert("❌ Aapke wallet mein paise kam hain! Pehle Deposit karein.");
+            }
+        };
+
+        window.rollDice = function() {
+            let diceNumber = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('diceResult').innerText = "Aapka Number: " + diceNumber + " 🎲";
+        };
+
+        window.quitLudoGame = function() {
+            if(confirm("Kya aap sach mein quit karna chahte hain? Entry fee wapas nahi milegi!")) {
+                window.showGameMenu();
+            }
+        };
+
+        // --- Auth Functions ---
+        window.registerUser = function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('statusMessage');
+
+            if (email === "" || password === "") {
+                status.innerText = "❌ Email/Password khali mat chhodna!";
+                return;
+            }
+
+            status.innerText = "Firebase se jud rahe hain... ⏳";
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(() => { window.showGameMenu(); })
+                .catch((error) => { status.innerText = "Galti: " + error.message; });
+        };
+
+        window.loginUser = function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('statusMessage');
+            
+            if (email === "" || password === "") return;
+            status.innerText = "Login ho raha hai... ⏳";
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(() => { window.showGameMenu(); })
+                .catch((error) => { status.innerText = "❌ Galat password ya email!"; });
+        };
+
+        window.logoutUser = function() {
+            firebase.auth().signOut().then(() => { window.showLoginScreen(); });
+        };
+    </script>
+</body>
+</html> 
