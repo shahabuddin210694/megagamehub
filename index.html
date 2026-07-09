@@ -15,12 +15,20 @@
         .game-btn { background: #ff9800; width: 90%; margin-top: 10px; }
         .logout-btn { background: #f44336; width: 90%; margin-top: 15px; }
         
-        /* Passbook ka naya design */
         .history-box { background: #222; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: left; max-height: 150px; overflow-y: auto; border: 1px solid #444; }
         .history-item { padding: 5px 0; border-bottom: 1px solid #444; font-size: 14px; }
         .history-item:last-child { border-bottom: none; }
         .text-green { color: #4CAF50; }
         .text-red { color: #f44336; }
+
+        /* Game Arena Design */
+        #dice { font-size: 80px; cursor: pointer; margin: 20px; transition: transform 0.5s; display: inline-block; }
+        .rolling { animation: roll 0.5s infinite; }
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -37,7 +45,6 @@
 
     <div id="gameMenu" class="container hidden">
         <h2>Welcome!</h2>
-        
         <div class="wallet-box">
             <h3>💰 Wallet Balance</h3>
             <h2 id="walletBalance">⏳ Loading...</h2>
@@ -59,19 +66,61 @@
         <button class="logout-btn" onclick="logoutUser()">🚪 Log Out</button>
     </div>
 
+    <div id="gameArena" class="container hidden">
+        <h2 id="arenaTitle">🎲 Ludo Game</h2>
+        <p>Aapka Game Shuru Ho Gaya Hai!</p>
+        
+        <div id="dice" onclick="rollDice()">🎲</div>
+        <h3 id="diceResult">Pasa phenkne ke liye click karein!</h3>
+
+        <button class="logout-btn" onclick="exitGame()">🚪 Back to Menu</button>
+    </div>
+
     <script>
+        // Screen badalne ke functions
         window.showGameMenu = function() {
             document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('gameArena').classList.add('hidden');
             document.getElementById('gameMenu').classList.remove('hidden');
         };
         window.showLoginScreen = function() {
             document.getElementById('gameMenu').classList.add('hidden');
+            document.getElementById('gameArena').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('email').value = "";
             document.getElementById('password').value = "";
             document.getElementById('statusMessage').innerText = "";
             document.getElementById('walletBalance').innerText = "⏳ Loading...";
             document.getElementById('historyList').innerHTML = '<div class="history-item">⏳ Loading history...</div>';
+        };
+        window.showGameArena = function(gameName) {
+            document.getElementById('gameMenu').classList.add('hidden');
+            document.getElementById('gameArena').classList.remove('hidden');
+            document.getElementById('arenaTitle').innerText = "🎲 " + gameName + " Arena";
+            document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
+        };
+        window.exitGame = function() {
+            window.showGameMenu();
+        };
+
+        // Dice Roll Animation Function
+        window.rollDice = function() {
+            const dice = document.getElementById('dice');
+            const resultText = document.getElementById('diceResult');
+            
+            dice.classList.add('rolling');
+            resultText.innerText = "⏳ Pasa ghoom raha hai...";
+
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const randomNum = Math.floor(Math.random() * 6) + 1;
+                
+                // Pasa ki shape badalna
+                const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                dice.innerText = diceFaces[randomNum];
+                
+                resultText.innerText = "Aapka aaya: " + randomNum + "!";
+            }, 500); // Aadhe second tak ghumega
         };
     </script>
 
@@ -183,7 +232,9 @@
                         history: arrayUnion(message)
                     });
                     refreshHistory();
-                    alert("🎉 Success! Aap " + gameName + " mein jud gaye.");
+                    
+                    // NAYA: Paise katne ke baad Game Arena khulega!
+                    window.showGameArena(gameName);
                 } else {
                     alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein.");
                 }
