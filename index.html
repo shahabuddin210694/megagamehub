@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,8 +39,8 @@
         </div>
 
         <h3>Tournaments & Games:</h3>
-        <button class="game-btn">🎲 Play Ludo (Entry: ₹10)</button>
-        <button class="game-btn">🃏 Play Poker (Entry: ₹50)</button>
+        <button class="game-btn" onclick="playGame('Ludo', 10)">🎲 Play Ludo (Entry: ₹10)</button>
+        <button class="game-btn" onclick="playGame('Poker', 50)">🃏 Play Poker (Entry: ₹50)</button>
         
         <button class="logout-btn" onclick="logoutUser()">🚪 Log Out</button>
     </div>
@@ -139,7 +138,21 @@
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
                 await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); 
             } else {
-                alert("Balance kam hai!");
+                alert("❌ Balance kam hai!");
+            }
+        };
+
+        // --- GAME KHELNE PAR ENTRY FEE KATNA ---
+        window.playGame = async function(gameName, entryFee) {
+            if(currentUser) {
+                if(currentBalance >= entryFee) {
+                    currentBalance -= entryFee; // Paise minus kiye
+                    document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                    await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); // Database mein update kiya
+                    alert("🎉 Success! Aap " + gameName + " mein jud gaye. ₹" + entryFee + " kat gaye hain.");
+                } else {
+                    alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein.");
+                }
             }
         };
 
