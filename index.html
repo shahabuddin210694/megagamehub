@@ -80,7 +80,7 @@
     <div id="depositModal" class="modal hidden">
         <div class="modal-content">
             <h3>Add Funds (UPI)</h3>
-            <p>Admin UPI: <b>9997210694ybl@ibl</b></p>
+            <p>Admin UPI: <b>admin123@ybl</b></p>
             <input type="number" id="depositAmount" placeholder="Amount (Min ₹50)">
             <button class="upi-btn" onclick="payViaUPI()">📱 Pay via UPI App</button>
             
@@ -200,8 +200,8 @@
             authDomain: "megagamehub-f8ff3.firebaseapp.com",
             projectId: "megagamehub-f8ff3",
             storageBucket: "megagamehub-f8ff3.firebasestorage.app",
-            messagingSenderId: "918110428941",
-            appId: "1:918110428941:web:3c0de8c0c5a52fca41da44"
+            messagingSenderId: "919997210694",
+            appId: "1:919997210694:web:3c0de8c0c5a52fca41da44"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -210,8 +210,7 @@
 
         let currentUser = null;
         let currentBalance = 0;
-
-        const ADMIN_WA_NUMBER = "+919997210694"; 
+const ADMIN_WA_NUMBER = "919997210694"; 
         const ADMIN_UPI_ID = "9997210694ybl@ibl";    
 
         function updateHistoryUI(historyArray) {
@@ -275,7 +274,8 @@
             const waUrl = `https://wa.me/${ADMIN_WA_NUMBER}?text=${waText}`;
 
             closeDepositModal();
-            window.open(waUrl, "_blank");
+            // FIX:
+            window.location.href = waUrl;
         };
 
         window.openWithdrawModal = function() {
@@ -309,7 +309,8 @@
             const waUrl = `https://wa.me/${ADMIN_WA_NUMBER}?text=${waText}`;
 
             closeWithdrawModal();
-            window.open(waUrl, "_blank");
+            // FIX:
+            window.location.href = waUrl;
         };
 
         window.rollDice = function() {
@@ -355,9 +356,4 @@
             if (email === "" || password === "") { status.innerText = "❌ Email/Password khali mat chhodna!"; return; }
             status.innerText = "Account ban raha hai... ⏳";
             createUserWithEmailAndPassword(auth, email, password)
-                .then(async (userCredential) => { await setDoc(doc(db, "users", userCredential.user.uid), { email: email, balance: 0, history: [] }); status.innerText = ""; })
-                .catch((error) => { status.innerText = "Galti: " + error.message; });
-        };
-
-        window.loginUser = function() {
-            const email = document.getElementById('email')
+                .then(async (userCredential) => { await setDoc(doc(db, "users", userCredential.user.uid), { email: email, ba
