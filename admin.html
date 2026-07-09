@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mega Game Hub</title>
+    <style>
+        body { background-color: #1a1a2e; color: white; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 400px; margin: 50px auto; background: #16213e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid #e94560; }
+        h2 { color: #e94560; margin-top: 0; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 14px; }
+        button { border: none; padding: 12px; margin: 10px 5px; cursor: pointer; border-radius: 5px; font-size: 16px; font-weight: bold; width: 42%; transition: 0.2s; color: white; }
+        .btn-add { background: #4CAF50; }
+        .btn-add:hover { background: #45a049; }
+        .btn-deduct { background: #f44336; }
+        .btn-deduct:hover { background: #d32f2f; }
+        #status { margin-top: 15px; font-size: 14px; font-weight: bold; }
+        .text-green { color: #4CAF50; }
+        .text-red { color: #f44336; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🛠️ Admin Panel</h2>
+        <p>User ke wallet mein paise daalein ya nikaalein.</p>
+        
+        <input type="text" id="userId" placeholder="User ki UID daalein (WhatsApp se copy karein)">
+        <input type="number" id="amount" placeholder="Amount (e.g., 100)">
+        
+        <div>
+            <button class="btn-add" onclick="updateUserBalance('add')">➕ Add Funds</button>
+            <button class="btn-deduct" onclick="updateUserBalance('deduct')">➖ Deduct</button>
+        </div>
+        
+        <p id="status"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBH_oyJjcXiElydtfMHsEIOGAgzHryy1m8",
+            authDomain: "megagamehub-f8ff3.firebaseapp.com",
+            projectId: "megagamehub-f8ff3",
+            storageBucket: "megagamehub-f8ff3.firebasestorage.app",
+            messagingSenderId: "918110428941",
+            appId: "1:918110428941:web:3c0de8c0c5a52fca41da44"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.updateUserBalance = async function(action) {
+            const uid = document.getElementById('userId').value.trim();
+            const amount = parseInt(document.getElementById('amount').value);
+            const statusText = document.getElementById('status');
+
+            if (uid === "") {
+                statusText.innerText = "❌ Please enter User ID!";
+                statusText.className = "text-red";
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                statusText.innerText = "❌ Sahi amount daalein!";
+                statusText.className = "text-red";
+                return;
+            }
+
+            statusText.innerText = "⏳ Processing...";
+            statusText.className = "text-green";
+
+            try {
+                const userRef = doc(db, "users", uid);
+                const docSnap = await getDoc(userRef);
+
+                if (docSnap.exists()) {
+                    let currentBalance = docSnap.data().balance || 0;
+                    let newBalance = currentBalance;
+                    let historyMsg = "";
+
+                    if (action === 'add') {
+                        newBalance += amount;
+                        historyMsg = `Admin Added: +₹${amount} (Balance: ₹${newBalance})`;
+                    } else if (action === 'deduct') {
+                        if (amount > currentBalance) {
+                            statusText.innerText = "❌ User ke paas itna balance nahi hai!";
+                            statusText.className = "text-red";
+                            return;
+                        }
+                        newBalance -= amount;
+                        historyMsg = `Admin Deducted: -₹${amount} (Balance: ₹${newBalance})`;
+                    }
+
+                    await updateDoc(userRef, {
+                        balance: newBalance,
+                        history: arrayUnion(historyMsg)
+                    });
+
+                    statusText.innerText = `✅ Success! New Balance: ₹${newBalance}`;
+                    statusText.className = "text-green";
+                    
+                    document.getElementById('amount').value = "";
+                } else {
+                    statusText.innerText = "❌ User nahi mila! UID check karein.";
+                    statusText.className = "text-red";
+                }
+            } catch (error) {
+                statusText.innerText = "❌ Error: " + error.message;
+                statusText.className = "text-red";
+            }
+        };
+    </script>
+</body>
+</html>
