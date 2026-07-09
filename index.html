@@ -21,38 +21,23 @@
         .text-green { color: #4CAF50; }
         .text-red { color: #f44336; }
 
-        /* Game Arena Design */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #2a2a2a; padding: 20px; border-radius: 10px; width: 80%; max-width: 350px; }
+        .wa-btn { background: #25D366; width: 90%; margin-top: 10px; }
+        .wa-btn:hover { background: #128C7E; }
+        .close-btn { background: #f44336; width: 90%; margin-top: 5px; }
+
         #dice, #card { font-size: 80px; cursor: pointer; margin: 20px; display: inline-block; transition: transform 0.3s; user-select: none; }
         .rolling { animation: shake 0.4s infinite; }
-        @keyframes shake {
-            0% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(-20deg) scale(1.1); }
-            50% { transform: rotate(0deg) scale(1); }
-            75% { transform: rotate(20deg) scale(1.1); }
-            100% { transform: rotate(0deg) scale(1); }
-        }
+        @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-20deg) scale(1.1); } 50% { transform: rotate(0deg) scale(1); } 75% { transform: rotate(20deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
         .win-text { color: #4CAF50; font-weight: bold; font-size: 18px; animation: pop 0.5s ease; }
         @keyframes pop { 50% { transform: scale(1.2); } }
 
-        /* NAYA: Stickers / Emotes Tray */
         .emoji-tray { background: #222; padding: 10px; border-radius: 10px; margin-top: 20px; display: flex; justify-content: space-around; }
         .emoji-btn { background: transparent; border: 2px solid #555; font-size: 24px; padding: 5px 10px; width: auto; }
         .emoji-btn:hover { background: #444; }
-
-        /* Udte hue Ande/Pathar ka animation */
-        .flying-item {
-            position: fixed;
-            font-size: 60px;
-            bottom: -50px;
-            animation: throwItemAnim 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            pointer-events: none;
-            z-index: 9999;
-        }
-        @keyframes throwItemAnim {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
-            50% { transform: translateY(-40vh) scale(1.5) rotate(180deg); opacity: 1; }
-            100% { transform: translateY(-80vh) scale(2) rotate(360deg); opacity: 0; }
-        }
+        .flying-item { position: fixed; font-size: 60px; bottom: -50px; animation: throwItemAnim 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; pointer-events: none; z-index: 9999; }
+        @keyframes throwItemAnim { 0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; } 50% { transform: translateY(-40vh) scale(1.5) rotate(180deg); opacity: 1; } 100% { transform: translateY(-80vh) scale(2) rotate(360deg); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -73,7 +58,7 @@
             <h3>💰 Wallet Balance</h3>
             <h2 id="walletBalance">⏳ Loading...</h2>
             <button onclick="depositMoney()">➕ Deposit ₹100</button>
-            <button onclick="withdrawMoney()">➖ Withdraw ₹50</button>
+            <button onclick="openWithdrawModal()">💸 Withdraw Money</button>
         </div>
 
         <div class="history-box" id="historyBox">
@@ -88,6 +73,18 @@
         <button class="game-btn" onclick="playGame('Poker', 50)">🃏 Play Poker (Entry: ₹50)</button>
         
         <button class="logout-btn" onclick="logoutUser()">🚪 Log Out</button>
+    </div>
+
+    <div id="withdrawModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Withdraw Funds</h3>
+            <p>Available Balance: <span id="modalBalance"></span></p>
+            <input type="number" id="withdrawAmount" placeholder="Amount (Min ₹50)">
+            <input type="text" id="upiId" placeholder="Your UPI ID or Paytm No.">
+            <button class="wa-btn" onclick="requestWithdrawal()">🟢 Request on WhatsApp</button>
+            <button class="close-btn" onclick="closeWithdrawModal()">❌ Cancel</button>
+            <p id="withdrawError" class="text-red"></p>
+        </div>
     </div>
 
     <div id="gameArena" class="container hidden">
@@ -116,7 +113,6 @@
     </div>
 
     <script>
-        // --- NAYA: Sound Effects Setup ---
         const sounds = {
             roll: new Audio('https://actions.google.com/sounds/v1/foley/rolling_dice_on_table.ogg'),
             win: new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg'),
@@ -124,26 +120,18 @@
             throw: new Audio('https://actions.google.com/sounds/v1/cartoon/swoosh_fast.ogg')
         };
 
-        // --- NAYA: Stickers Fenkne Ka Function ---
         window.throwSticker = function(emoji) {
-            sounds.throw.currentTime = 0; // Sound shuru se play ho
+            sounds.throw.currentTime = 0; 
             sounds.throw.play();
-
             const sticker = document.createElement('div');
             sticker.innerText = emoji;
             sticker.className = 'flying-item';
-            
-            // Random jagah se ugega screen pe
             const randomX = Math.floor(Math.random() * 80) + 10; 
             sticker.style.left = randomX + 'vw';
-            
             document.body.appendChild(sticker);
-
-            // 1 second baad sticker screen se gayab
             setTimeout(() => { document.body.removeChild(sticker); }, 1000);
         };
 
-        // Screen badalne ke functions
         window.showGameMenu = function() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('gameArena').classList.add('hidden');
@@ -163,7 +151,6 @@
         window.showGameArena = function(gameName) {
             document.getElementById('gameMenu').classList.add('hidden');
             document.getElementById('gameArena').classList.remove('hidden');
-            
             if(gameName === 'Ludo') {
                 document.getElementById('arenaTitle').innerText = "🎲 Ludo Arena";
                 document.getElementById('ludoSection').classList.remove('hidden');
@@ -171,7 +158,7 @@
                 document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
                 document.getElementById('diceResult').className = "";
                 document.getElementById('dice').innerText = "🎲";
-                document.getElementById('dice').onclick = rollDice; // Click wapas chalu
+                document.getElementById('dice').onclick = rollDice; 
             } else if (gameName === 'Poker') {
                 document.getElementById('arenaTitle').innerText = "🃏 Poker Arena";
                 document.getElementById('pokerSection').classList.remove('hidden');
@@ -179,13 +166,11 @@
                 document.getElementById('cardResult').innerText = "Patta kholne ke liye click karein!";
                 document.getElementById('cardResult').className = "";
                 document.getElementById('card').innerText = "🃏";
-                document.getElementById('card').onclick = drawCard; // Click wapas chalu
+                document.getElementById('card').onclick = drawCard; 
             }
         };
 
-        window.exitGame = function() {
-            window.showGameMenu();
-        };
+        window.exitGame = function() { window.showGameMenu(); };
     </script>
 
     <script type="module">
@@ -228,103 +213,105 @@
                 currentBalance += amount;
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
                 let message = `Prize (${gameName}): +₹${amount} (Balance: ₹${currentBalance})`;
-                await updateDoc(doc(db, "users", currentUser.uid), { 
-                    balance: currentBalance,
-                    history: arrayUnion(message)
-                });
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) });
                 refreshHistory();
             }
         }
 
-        // Ludo Logic With Sound
+        window.openWithdrawModal = function() {
+            document.getElementById('withdrawModal').classList.remove('hidden');
+            document.getElementById('modalBalance').innerText = "₹ " + currentBalance;
+            document.getElementById('withdrawAmount').value = "";
+            document.getElementById('upiId').value = "";
+            document.getElementById('withdrawError').innerText = "";
+        };
+
+        window.closeWithdrawModal = function() {
+            document.getElementById('withdrawModal').classList.add('hidden');
+        };
+
+        window.requestWithdrawal = async function() {
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            const upi = document.getElementById('upiId').value;
+            const errorMsg = document.getElementById('withdrawError');
+
+            if(isNaN(amount) || amount < 50) {
+                errorMsg.innerText = "Kam se kam ₹50 nikaal sakte hain!";
+                return;
+            }
+            if(amount > currentBalance) {
+                errorMsg.innerText = "Aapke paas itne paise nahi hain!";
+                return;
+            }
+            if(upi.trim() === "") {
+                errorMsg.innerText = "Kripya apna UPI ya Paytm number daalein!";
+                return;
+            }
+
+            currentBalance -= amount;
+            document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+            let message = `Withdrawal Req: -₹${amount} (Pending)`;
+            await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) });
+            refreshHistory();
+            
+            const adminNumber = "+919997210694";
+            const waText = `Hello Admin!%0AMera User ID: ${currentUser.uid}%0AMujhe withdraw karna hai:%0AAmount: ₹${amount}%0AUPI ID/No: ${upi}%0AKripya paise bhej dein.`;
+            const waUrl = `https://wa.me/${adminNumber}?text=${waText}`;
+
+            closeWithdrawModal();
+            window.open(waUrl, "_blank");
+        };
+
         window.rollDice = function() {
             const dice = document.getElementById('dice');
             const resultText = document.getElementById('diceResult');
-            resultText.className = ""; 
-            
-            dice.classList.add('rolling');
-            resultText.innerText = "⏳ Pasa ghoom raha hai...";
-            sounds.roll.play(); // Aawaz shuru
-            
-            dice.onclick = null; 
-
+            resultText.className = ""; dice.classList.add('rolling');
+            resultText.innerText = "⏳ Pasa ghoom raha hai..."; sounds.roll.play(); dice.onclick = null; 
             setTimeout(() => {
                 dice.classList.remove('rolling');
                 const randomNum = Math.floor(Math.random() * 6) + 1;
                 const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
                 dice.innerText = diceFaces[randomNum];
-                
                 if (randomNum === 6) {
-                    sounds.win.play(); // Jeetne ki aawaz (Taaliyan)
-                    resultText.innerText = "🎉 BINGO! Aapka 6 aaya! Aap ₹20 jeet gaye!";
-                    resultText.className = "win-text";
-                    winMoney(20, 'Ludo Win');
+                    sounds.win.play(); resultText.innerText = "🎉 BINGO! Aapka 6 aaya! Aap ₹20 jeet gaye!";
+                    resultText.className = "win-text"; winMoney(20, 'Ludo Win');
                 } else {
-                    sounds.lose.play(); // Haarne ki funny aawaz (Boing)
-                    resultText.innerText = `Aapka ${randomNum} aaya. Better luck next time!`;
+                    sounds.lose.play(); resultText.innerText = `Aapka ${randomNum} aaya. Better luck next time!`;
                 }
             }, 800);
         };
 
-        // Poker Logic With Sound
         window.drawCard = function() {
             const card = document.getElementById('card');
             const resultText = document.getElementById('cardResult');
-            resultText.className = "";
-            
-            card.classList.add('rolling');
-            resultText.innerText = "⏳ Patta khul raha hai...";
-            sounds.roll.play(); // Card shuffle aawaz (roll sound used temporarily)
-            
-            card.onclick = null;
-
+            resultText.className = ""; card.classList.add('rolling');
+            resultText.innerText = "⏳ Patta khul raha hai..."; sounds.roll.play(); card.onclick = null;
             setTimeout(() => {
                 card.classList.remove('rolling');
                 const cards = ['7♥', 'K♦', 'Q♣', '2♠', 'J♠', '10♥', 'A♠', '5♦'];
                 const randomCard = cards[Math.floor(Math.random() * cards.length)];
                 card.innerText = randomCard;
-                
                 if (randomCard === 'A♠') {
-                    sounds.win.play(); // Jeetne ki aawaz
-                    resultText.innerText = "🎰 JACKPOT! Ikka nikal aaya! Aap ₹100 jeet gaye!";
-                    resultText.className = "win-text";
-                    winMoney(100, 'Poker Jackpot');
+                    sounds.win.play(); resultText.innerText = "🎰 JACKPOT! Ikka nikal aaya! Aap ₹100 jeet gaye!";
+                    resultText.className = "win-text"; winMoney(100, 'Poker Jackpot');
                 } else {
-                    sounds.lose.play(); // Haarne ki aawaz
-                    resultText.innerText = `Aapka patta: ${randomCard}. Haar gaye, fir koshish karein!`;
+                    sounds.lose.play(); resultText.innerText = `Aapka patta: ${randomCard}. Haar gaye, fir koshish karein!`;
                 }
             }, 800);
         };
 
         window.registerUser = function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const status = document.getElementById('statusMessage');
-
-            if (email === "" || password === "") {
-                status.innerText = "❌ Email/Password khali mat chhodna!";
-                return;
-            }
-
+            const email = document.getElementById('email').value; const password = document.getElementById('password').value; const status = document.getElementById('statusMessage');
+            if (email === "" || password === "") { status.innerText = "❌ Email/Password khali mat chhodna!"; return; }
             status.innerText = "Account ban raha hai... ⏳";
             createUserWithEmailAndPassword(auth, email, password)
-                .then(async (userCredential) => { 
-                    await setDoc(doc(db, "users", userCredential.user.uid), {
-                        email: email,
-                        balance: 0,
-                        history: [] 
-                    });
-                    status.innerText = "";
-                })
+                .then(async (userCredential) => { await setDoc(doc(db, "users", userCredential.user.uid), { email: email, balance: 0, history: [] }); status.innerText = ""; })
                 .catch((error) => { status.innerText = "Galti: " + error.message; });
         };
 
         window.loginUser = function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const status = document.getElementById('statusMessage');
-            if (email === "" || password === "") return;
-            status.innerText = "Login ho raha hai... ⏳";
+            const email = document.getElementById('email').value; const password = document.getElementById('password').value; const status = document.getElementById('statusMessage');
+            if (email === "" || password === "") return; status.innerText = "Login ho raha hai... ⏳";
             signInWithEmailAndPassword(auth, email, password).catch(() => { status.innerText = "❌ Galat password ya email!"; });
         };
 
@@ -332,78 +319,37 @@
 
         window.depositMoney = async function() {
             if(currentUser) {
-                currentBalance += 100;
-                document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                currentBalance += 100; document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
                 let message = `Deposit: +₹100 (Balance: ₹${currentBalance})`;
-                await updateDoc(doc(db, "users", currentUser.uid), { 
-                    balance: currentBalance,
-                    history: arrayUnion(message)
-                });
-                refreshHistory();
-            }
-        };
-
-        window.withdrawMoney = async function() {
-            if(currentUser && currentBalance >= 50) {
-                currentBalance -= 50;
-                document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                let message = `Withdraw: -₹50 (Balance: ₹${currentBalance})`;
-                await updateDoc(doc(db, "users", currentUser.uid), { 
-                    balance: currentBalance,
-                    history: arrayUnion(message)
-                });
-                refreshHistory();
-            } else {
-                alert("❌ Balance kam hai!");
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) }); refreshHistory();
             }
         };
 
         window.playGame = async function(gameName, entryFee) {
             if(currentUser) {
                 if(currentBalance >= entryFee) {
-                    currentBalance -= entryFee; 
-                    document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                    currentBalance -= entryFee; document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
                     let message = `Played ${gameName}: -₹${entryFee} (Balance: ₹${currentBalance})`;
-                    await updateDoc(doc(db, "users", currentUser.uid), { 
-                        balance: currentBalance,
-                        history: arrayUnion(message)
-                    });
-                    refreshHistory();
-                    
+                    await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) }); refreshHistory();
                     window.showGameArena(gameName);
-                } else {
-                    alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein.");
-                }
+                } else { alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein."); }
             }
         };
 
         async function refreshHistory() {
             if(currentUser) {
                 const docSnap = await getDoc(doc(db, "users", currentUser.uid));
-                if (docSnap.exists()) {
-                    updateHistoryUI(docSnap.data().history);
-                }
+                if (docSnap.exists()) { updateHistoryUI(docSnap.data().history); }
             }
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUser = user;
-                window.showGameMenu(); 
-                
+                currentUser = user; window.showGameMenu(); 
                 const docSnap = await getDoc(doc(db, "users", user.uid));
-                if (docSnap.exists()) {
-                    currentBalance = docSnap.data().balance;
-                    document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                    updateHistoryUI(docSnap.data().history);
-                } else {
-                    document.getElementById('walletBalance').innerText = "₹ 0";
-                    updateHistoryUI([]);
-                }
-            } else {
-                currentUser = null;
-                window.showLoginScreen(); 
-            }
+                if (docSnap.exists()) { currentBalance = docSnap.data().balance; document.getElementById('walletBalance').innerText = "₹ " + currentBalance; updateHistoryUI(docSnap.data().history); } 
+                else { document.getElementById('walletBalance').innerText = "₹ 0"; updateHistoryUI([]); }
+            } else { currentUser = null; window.showLoginScreen(); }
         });
     </script>
 </body>
