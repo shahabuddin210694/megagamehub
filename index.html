@@ -14,6 +14,13 @@
         .hidden { display: none; }
         .game-btn { background: #ff9800; width: 90%; margin-top: 10px; }
         .logout-btn { background: #f44336; width: 90%; margin-top: 15px; }
+        
+        /* Passbook ka naya design */
+        .history-box { background: #222; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: left; max-height: 150px; overflow-y: auto; border: 1px solid #444; }
+        .history-item { padding: 5px 0; border-bottom: 1px solid #444; font-size: 14px; }
+        .history-item:last-child { border-bottom: none; }
+        .text-green { color: #4CAF50; }
+        .text-red { color: #f44336; }
     </style>
 </head>
 <body>
@@ -38,6 +45,13 @@
             <button onclick="withdrawMoney()">➖ Withdraw ₹50</button>
         </div>
 
+        <div class="history-box" id="historyBox">
+            <h4 style="margin: 0 0 10px 0; text-align: center;">📜 Passbook (History)</h4>
+            <div id="historyList">
+                <div class="history-item">⏳ Loading history...</div>
+            </div>
+        </div>
+
         <h3>Tournaments & Games:</h3>
         <button class="game-btn" onclick="playGame('Ludo', 10)">🎲 Play Ludo (Entry: ₹10)</button>
         <button class="game-btn" onclick="playGame('Poker', 50)">🃏 Play Poker (Entry: ₹50)</button>
@@ -46,7 +60,6 @@
     </div>
 
     <script>
-        // UI Screens dikhane/chupane ka code
         window.showGameMenu = function() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('gameMenu').classList.remove('hidden');
@@ -58,13 +71,14 @@
             document.getElementById('password').value = "";
             document.getElementById('statusMessage').innerText = "";
             document.getElementById('walletBalance').innerText = "⏳ Loading...";
+            document.getElementById('historyList').innerHTML = '<div class="history-item">⏳ Loading history...</div>';
         };
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBH_oyJjcXiElydtfMHsEIOGAgzHryy1m8",
@@ -82,7 +96,20 @@
         let currentUser = null;
         let currentBalance = 0;
 
-        // --- REGISTER SYSTEM ---
+        function updateHistoryUI(historyArray) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = "";
+            if (!historyArray || historyArray.length === 0) {
+                historyList.innerHTML = '<div class="history-item">Koi transaction nahi hui.</div>';
+                return;
+            }
+            let reversedHistory = [...historyArray].reverse();
+            reversedHistory.forEach(item => {
+                let colorClass = item.includes("+") ? "text-green" : "text-red";
+                historyList.innerHTML += `<div class="history-item ${colorClass}">${item}</div>`;
+            });
+        }
+
         window.registerUser = function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -98,37 +125,35 @@
                 .then(async (userCredential) => { 
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         email: email,
-                        balance: 0  
+                        balance: 0,
+                        history: [] 
                     });
                     status.innerText = "";
                 })
                 .catch((error) => { status.innerText = "Galti: " + error.message; });
         };
 
-        // --- LOGIN SYSTEM ---
         window.loginUser = function() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('statusMessage');
-            
             if (email === "" || password === "") return;
             status.innerText = "Login ho raha hai... ⏳";
-
-            signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => { status.innerText = "❌ Galat password ya email!"; });
+            signInWithEmailAndPassword(auth, email, password).catch(() => { status.innerText = "❌ Galat password ya email!"; });
         };
 
-        // --- LOGOUT SYSTEM ---
-        window.logoutUser = function() {
-            signOut(auth);
-        };
+        window.logoutUser = function() { signOut(auth); };
 
-        // --- PAISA DEPOSIT / WITHDRAW KAREIN ---
         window.depositMoney = async function() {
             if(currentUser) {
                 currentBalance += 100;
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); 
+                let message = `Deposit: +₹100 (Balance: ₹${currentBalance})`;
+                await updateDoc(doc(db, "users", currentUser.uid), { 
+                    balance: currentBalance,
+                    history: arrayUnion(message)
+                });
+                refreshHistory();
             }
         };
 
@@ -136,27 +161,44 @@
             if(currentUser && currentBalance >= 50) {
                 currentBalance -= 50;
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); 
+                let message = `Withdraw: -₹50 (Balance: ₹${currentBalance})`;
+                await updateDoc(doc(db, "users", currentUser.uid), { 
+                    balance: currentBalance,
+                    history: arrayUnion(message)
+                });
+                refreshHistory();
             } else {
                 alert("❌ Balance kam hai!");
             }
         };
 
-        // --- GAME KHELNE PAR ENTRY FEE KATNA ---
         window.playGame = async function(gameName, entryFee) {
             if(currentUser) {
                 if(currentBalance >= entryFee) {
-                    currentBalance -= entryFee; // Paise minus kiye
+                    currentBalance -= entryFee; 
                     document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                    await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); // Database mein update kiya
-                    alert("🎉 Success! Aap " + gameName + " mein jud gaye. ₹" + entryFee + " kat gaye hain.");
+                    let message = `Played ${gameName}: -₹${entryFee} (Balance: ₹${currentBalance})`;
+                    await updateDoc(doc(db, "users", currentUser.uid), { 
+                        balance: currentBalance,
+                        history: arrayUnion(message)
+                    });
+                    refreshHistory();
+                    alert("🎉 Success! Aap " + gameName + " mein jud gaye.");
                 } else {
                     alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein.");
                 }
             }
         };
 
-        // --- HAR BAAR PAGE KHULNE PAR DATABASE SE BALANCE LANA ---
+        async function refreshHistory() {
+            if(currentUser) {
+                const docSnap = await getDoc(doc(db, "users", currentUser.uid));
+                if (docSnap.exists()) {
+                    updateHistoryUI(docSnap.data().history);
+                }
+            }
+        }
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -166,8 +208,10 @@
                 if (docSnap.exists()) {
                     currentBalance = docSnap.data().balance;
                     document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                    updateHistoryUI(docSnap.data().history);
                 } else {
                     document.getElementById('walletBalance').innerText = "₹ 0";
+                    updateHistoryUI([]);
                 }
             } else {
                 currentUser = null;
