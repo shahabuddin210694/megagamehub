@@ -63,10 +63,10 @@
         <h1 style="color: #ff9800;">🔥 Mega Game Hub</h1>
         <p>Login ya Register Karein</p>
         <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn-green" onclick="loginUser()">Login</button>
-        <button class="btn-blue" onclick="registerUser()">Register</button>
-        <p id="statusMessage"></p>
+        <input type="password" id="password" placeholder="Password (Min 6 chars)">
+        <button class="btn-green" type="button" onclick="loginUser()">Login</button>
+        <button class="btn-blue" type="button" onclick="registerUser()">Register</button>
+        <p id="statusMessage" style="font-weight: bold; margin-top: 15px; font-size: 14px;"></p>
     </div>
 
     <div id="gameMenu" class="container hidden">
@@ -143,18 +143,15 @@
     <div id="depositModal" class="modal hidden">
         <div class="modal-content">
             <h3 style="margin-top:0;">Add Funds (UPI/QR)</h3>
-            
             <div style="background: white; padding: 10px; width: 130px; margin: 10px auto; border-radius: 8px;">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi%3A%2F%2Fpay%3Fpa%3D9997210694ybl%40ibl%26pn%3DAdmin%26cu%3DINR" alt="UPI QR" style="width: 100%;">
             </div>
             <p style="font-size: 13px; color: #ccc; margin: 5px 0;">Scan QR or use Admin UPI:<br><b style="color:#ff9800;">9997210694ybl@ibl</b></p>
-            
             <input type="number" id="depositAmount" placeholder="Amount (Min ₹50)">
             <button style="background: #0078FF; width: 90%; margin-top: 10px;" type="button" onclick="payViaUPI()">📱 Pay via UPI App</button>
             <p style="font-size: 12px; margin: 15px 0 5px;">Payment ke baad 12-digit UTR daalein:</p>
             <input type="text" id="depositUTR" placeholder="Enter UTR No.">
             <button style="background: #25D366; width: 90%; margin-top: 5px;" type="button" onclick="requestDeposit()">🟢 Notify Admin</button>
-            
             <button class="btn-red" type="button" onclick="window.closeModals()">❌ Cancel</button>
             <p id="depositError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
         </div>
@@ -167,7 +164,6 @@
             <input type="number" id="withdrawAmount" placeholder="Amount (Min ₹50)">
             <input type="text" id="upiId" placeholder="Your UPI / Paytm No.">
             <button style="background: #25D366; width: 90%; margin-top: 10px;" type="button" onclick="requestWithdrawal()">🟢 Request WhatsApp</button>
-            
             <button class="btn-red" type="button" onclick="window.closeModals()">❌ Cancel</button>
             <p id="withdrawError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
         </div>
@@ -180,27 +176,17 @@
             lose: new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg')
         };
 
-        window.downloadAPK = function() {
-            alert("Sir, APK banne ke baad aap yahan uska link laga sakte hain. Niche diye gaye steps padhein!");
-        };
-
+        window.downloadAPK = function() { alert("Sir, APK banne ke baad aap yahan uska link laga sakte hain."); };
         window.showScreen = function(screenId) {
             document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
             document.getElementById(screenId).classList.remove('hidden');
         };
-
         window.exitGame = function() { showScreen('gameMenu'); };
-        
-        // Exact Cancel Modal Function
         window.closeModals = function() { 
             document.getElementById('depositModal').classList.add('hidden');
             document.getElementById('withdrawModal').classList.add('hidden');
             document.getElementById('depositError').innerText = "";
             document.getElementById('withdrawError').innerText = "";
-            document.getElementById('depositAmount').value = "";
-            document.getElementById('depositUTR').value = "";
-            document.getElementById('withdrawAmount').value = "";
-            document.getElementById('upiId').value = "";
         };
     </script>
 
@@ -281,48 +267,30 @@
             }, 800);
         };
 
-        // Auth & Banking logic
-        window.openDepositModal = () => {
-            document.getElementById('depositModal').classList.remove('hidden');
-            document.getElementById('depositError').innerText = "";
-        };
-        
-        window.openWithdrawModal = () => {
-            document.getElementById('withdrawModal').classList.remove('hidden');
-            document.getElementById('availBalanceModal').innerText = "₹" + currentBalance;
-            document.getElementById('withdrawError').innerText = "";
-        };
+        window.openDepositModal = () => { document.getElementById('depositModal').classList.remove('hidden'); document.getElementById('depositError').innerText = ""; };
+        window.openWithdrawModal = () => { document.getElementById('withdrawModal').classList.remove('hidden'); document.getElementById('availBalanceModal').innerText = "₹" + currentBalance; document.getElementById('withdrawError').innerText = ""; };
 
-        window.payViaUPI = () => { 
-            let a = document.getElementById('depositAmount').value; 
-            if(a>=50) window.location.href = `upi://pay?pa=${ADMIN_UPI}&pn=Admin&am=${a}&cu=INR`; 
-            else document.getElementById('depositError').innerText = "❌ Min ₹50 daalein!";
-        };
+        window.payViaUPI = () => { let a = document.getElementById('depositAmount').value; if(a>=50) window.location.href = `upi://pay?pa=${ADMIN_UPI}&pn=Admin&am=${a}&cu=INR`; else document.getElementById('depositError').innerText = "❌ Min ₹50 daalein!"; };
 
         window.requestDeposit = async () => { 
-            let a = parseInt(document.getElementById('depositAmount').value); 
-            let u = document.getElementById('depositUTR').value; 
-            let err = document.getElementById('depositError');
-
+            let a = parseInt(document.getElementById('depositAmount').value); let u = document.getElementById('depositUTR').value; let err = document.getElementById('depositError');
             if(isNaN(a) || a < 50) { err.innerText = "❌ Min ₹50 deposit karein!"; return; }
             if(u.trim() === "") { err.innerText = "❌ UTR Number daalna zaroori hai!"; return; }
-
-            err.innerText = "⏳ Processing...";
-            await updateDoc(doc(db, "users", currentUser.uid), { history: arrayUnion(`Deposit Req: +₹${a} (UTR: ${u})`) }); 
-            window.location.href = `https://wa.me/${ADMIN_WA}?text=Deposit%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUTR: ${u}`; 
-            window.closeModals(); 
-            refreshData(); 
+            err.innerText = "⏳ Processing..."; await updateDoc(doc(db, "users", currentUser.uid), { history: arrayUnion(`Deposit Req: +₹${a} (UTR: ${u})`) }); 
+            window.location.href = `https://wa.me/${ADMIN_WA}?text=Deposit%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUTR: ${u}`; window.closeModals(); refreshData(); 
         };
 
         window.requestWithdrawal = async () => { 
-            let a = parseInt(document.getElementById('withdrawAmount').value); 
-            let u = document.getElementById('upiId').value; 
-            let err = document.getElementById('withdrawError');
-
+            let a = parseInt(document.getElementById('withdrawAmount').value); let u = document.getElementById('upiId').value; let err = document.getElementById('withdrawError');
             if(isNaN(a) || a < 50) { err.innerText = "❌ Min ₹50 nikal sakte hain!"; return; }
             if(a > currentBalance) { err.innerText = "❌ Aapke account mein itne paise nahi hain!"; return; }
             if(u.trim() === "") { err.innerText = "❌ Apna UPI ID / Paytm number daalein!"; return; }
-
-            err.innerText = "⏳ Processing...";
-            await deductMoney(a, 'Withdraw Pending'); 
-            window.location.href = `https://wa.me/${A
+            err.innerText = "⏳ Processing..."; await deductMoney(a, 'Withdraw Pending'); 
+            window.location.href = `https://wa.me/${ADMIN_WA}?text=Withdraw%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUPI: ${u}`; window.closeModals(); 
+        };
+        
+        // ---- FIXED LOGIN & REGISTER FUNCTIONS WITH ERROR HANDLING ----
+        window.registerUser = () => { 
+            let e = document.getElementById('email').value, p = document.getElementById('password').value; 
+            let msg = document.getElementById('statusMessage');
+            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password dono da
