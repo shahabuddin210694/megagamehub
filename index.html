@@ -3,42 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mega Game Hub</title>
+    <title>Mega Game Hub - Pro</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            margin-top: 50px; 
-            background-color: #121212;
-            color: white; 
-        }
-        .container { 
-            max-width: 400px; 
-            margin: auto; 
-            padding: 30px 20px; 
-            background: #1e1e1e; 
-            border-radius: 10px; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); 
-        }
-        input { 
-            width: 85%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border-radius: 5px; 
-            border: none; 
-            outline: none;
-        }
-        button { 
-            padding: 10px 20px; 
-            margin: 10px 5px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 16px;
-        }
-        .btn-green { background-color: #4CAF50; color: white; }
-        .btn-blue { background-color: #2196F3; color: white; }
+        body { background-color: #0d0d0d; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 10px; overflow-x: hidden; }
+        .container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.8); border: 1px solid #333; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none;}
+        button { font-weight: bold; color: white; border: none; padding: 12px 15px; margin: 5px; cursor: pointer; border-radius: 8px; font-size: 15px; transition: 0.3s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        
+        .wallet-box { background: linear-gradient(135deg, #2c3e50, #000000); padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px solid #ff9800; }
+        .hidden { display: none !important; }
+        
+        /* Buttons */
+        .btn-green { background: #4CAF50; width: 45%; }
+        .btn-blue { background: #008CBA; width: 45%; }
+        .btn-red { background: #f44336; width: 90%; margin-top: 15px; }
+        .btn-download { background: linear-gradient(90deg, #ff007f, #7928ca); width: 90%; margin-top: 15px; font-size: 18px; padding: 15px; border-radius: 10px; animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* Game Cards */
+        .game-card { background: #262626; border-radius: 10px; padding: 15px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; border: 1px solid #444; }
+        .game-icon { font-size: 40px; margin-right: 15px; background: #111; padding: 10px; border-radius: 10px; }
+        .game-info { text-align: left; flex-grow: 1; }
+        .game-info h3 { margin: 0 0 5px 0; color: #ff9800; }
+        .game-info p { margin: 0; font-size: 13px; color: #aaa; }
+        .play-btn { background: #ff9800; width: 80px; padding: 10px; }
+
+        /* Ludo Arena */
+        .ludo-board { background: #fff; width: 300px; height: 300px; margin: 20px auto; border-radius: 10px; border: 5px solid #333; position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px; padding: 5px; }
+        .l-box { border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: white; }
+        .l-red { background: #ff4d4d; } .l-green { background: #4CAF50; }
+        .l-yellow { background: #ffcc00; } .l-blue { background: #3385ff; }
+        .l-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        
+        /* Poker Arena */
+        .poker-table { background: radial-gradient(circle, #006600, #003300); width: 320px; height: 200px; margin: 30px auto; border-radius: 100px; position: relative; border: 8px solid #663300; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .p-seat { width: 40px; height: 40px; background: #222; border-radius: 50%; position: absolute; border: 2px solid #ccc; color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
+        .s1 { top: -20px; left: 140px; } .s2 { bottom: -20px; left: 140px; }
+        .s3 { top: 70px; left: -20px; } .s4 { top: 70px; right: -20px; }
+        .s5 { top: 10px; left: 25px; } .s6 { top: 10px; right: 25px; }
+        .p-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 35px; cursor: pointer;}
+
+        /* History & Modals */
+        .history-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: left; max-height: 120px; overflow-y: auto; border: 1px solid #333; }
+        .history-item { padding: 5px 0; border-bottom: 1px solid #333; font-size: 13px; }
+        .text-green { color: #4CAF50; } .text-red { color: #f44336; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 12px; width: 85%; max-width: 350px; border: 1px solid #444; max-height: 90vh; overflow-y: auto; }
+        
+        #dice { font-size: 50px; cursor: pointer; transition: 0.3s; }
+        .rolling { animation: shake 0.4s infinite; }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-20deg); } 75% { transform: rotate(20deg); } }
     </style>
 </head>
 <body>
@@ -46,22 +62,90 @@
     <div id="loginScreen" class="container">
         <h1 style="color: #ff9800;">🔥 Mega Game Hub</h1>
         <p>Login ya Register Karein</p>
-        
         <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="password" placeholder="Password (Min 6 chars)">
-        <br>
         <button class="btn-green" type="button" onclick="loginUser()">Login</button>
         <button class="btn-blue" type="button" onclick="registerUser()">Register</button>
-        
         <p id="statusMessage" style="font-weight: bold; margin-top: 15px; font-size: 14px; min-height: 20px;"></p>
+    </div>
+
+    <div id="gameMenu" class="container hidden">
+        <h2 style="margin-top:0;">🏆 Lobby</h2>
+        <div class="wallet-box">
+            <h4 style="margin: 0; color: #ccc;">💰 Wallet Balance</h4>
+            <h1 id="walletBalance" style="margin: 10px 0; color: #4CAF50;">₹ 0</h1>
+            <button class="btn-green" onclick="alert('Deposit system coming soon!')">➕ Add Cash</button>
+            <button class="btn-blue" onclick="alert('Withdraw system coming soon!')">💸 Withdraw</button>
+        </div>
+
+        <button class="btn-download" onclick="alert('Downloading APK...')">📲 Download App (APK)</button>
+
+        <div class="game-card">
+            <div class="game-icon">🎲</div>
+            <div class="game-info">
+                <h3>Ludo Classic (4P)</h3>
+                <p>Entry: ₹10 | Win: ₹20</p>
+            </div>
+            <button class="play-btn" onclick="playGame('Ludo', 10)">PLAY</button>
+        </div>
+
+        <div class="game-card">
+            <div class="game-icon">🃏</div>
+            <div class="game-info">
+                <h3>Poker Pro (6P)</h3>
+                <p>Entry: ₹50 | Win: ₹100</p>
+            </div>
+            <button class="play-btn" onclick="playGame('Poker', 50)">PLAY</button>
+        </div>
+
+        <div class="history-box">
+            <h4 style="margin: 0 0 5px 0;">📜 Passbook</h4>
+            <div id="historyList"><div class="history-item">Naya Account Ban Gaya Hai!</div></div>
+        </div>
+        
+        <button class="btn-red" onclick="logoutUser()">🚪 Log Out</button>
+    </div>
+
+    <div id="ludoArena" class="container hidden">
+        <h2>🎲 Ludo Arena</h2>
+        <p>Target: 6 laao aur jeeto!</p>
+        
+        <div class="ludo-board">
+            <div class="l-box l-red">P1</div>
+            <div class="l-box l-green">P2</div>
+            <div class="l-box l-yellow">P3</div>
+            <div class="l-box l-blue">P4</div>
+            <div class="l-center" id="dice" onclick="rollDice()">🎲</div>
+        </div>
+        
+        <h3 id="ludoResult" style="height: 30px;">Click the dice!</h3>
+        <button class="btn-red" onclick="exitGame('ludoArena')">🔙 Back to Lobby</button>
+    </div>
+
+    <div id="pokerArena" class="container hidden">
+        <h2>🃏 Poker Table</h2>
+        <p>Target: Ikka (A♠) kholo aur jeeto!</p>
+        
+        <div class="poker-table">
+            <div class="p-seat s1">P1</div>
+            <div class="p-seat s2">P2</div>
+            <div class="p-seat s3">P3</div>
+            <div class="p-seat s4">P4</div>
+            <div class="p-seat s5">P5</div>
+            <div class="p-seat s6">P6</div>
+            <div class="p-center" id="card" onclick="drawCard()">🂠</div>
+        </div>
+        <h3 id="pokerResult" style="height: 30px;">Click the card!</h3>
+        <button class="btn-red" onclick="exitGame('pokerArena')">🔙 Back to Lobby</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Import the functions you need from the SDKs you need
+        // 🔥 YAHAN APNA FIREBASE CONFIG DAALEIN 🔥
+    // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -92,30 +176,20 @@ const analytics = getAnalytics(app);
             let p = document.getElementById('password').value; 
             let msg = document.getElementById('statusMessage');
             
-            if(!e || !p) { 
-                msg.style.color = "#f44336"; 
-                msg.innerText = "❌ Email aur Password dono daalein!"; 
-                return; 
-            }
-            
-            msg.style.color = "#ffcc00"; 
-            msg.innerText = "⏳ Register kar rahe hain...";
+            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password daalein!"; return; }
+            msg.style.color = "#ffcc00"; msg.innerText = "⏳ Register kar rahe hain...";
             
             createUserWithEmailAndPassword(auth, e, p)
             .then(u => {
-                setDoc(doc(db, "users", u.user.uid), {
-                    email: e, 
-                    balance: 0, 
-                    history: []
-                });
-                msg.style.color = "#4CAF50"; 
-                msg.innerText = "✅ Account ban gaya!";
+                setDoc(doc(db, "users", u.user.uid), { email: e, balance: 0, history: [] });
+                msg.style.color = "#4CAF50"; msg.innerText = "✅ Account ban gaya!";
+                setTimeout(() => { showScreen('gameMenu'); }, 1000); 
             })
             .catch(error => {
                 msg.style.color = "#f44336"; 
-                if(error.code === 'auth/weak-password') { msg.innerText = "❌ Password kam se kam 6 letters ka hona chahiye!"; }
-                else if(error.code === 'auth/email-already-in-use') { msg.innerText = "❌ Ye Email pehle se register hai! Kripya Login karein."; }
-                else { msg.innerText = "❌ Error: " + error.message; }
+                if(error.code === 'auth/weak-password') msg.innerText = "❌ Password 6 letters ka hona chahiye!"; 
+                else if(error.code === 'auth/email-already-in-use') msg.innerText = "❌ Ye Email register hai! Login karein."; 
+                else msg.innerText = "❌ Error: " + error.message; 
             });
         };
 
@@ -124,24 +198,60 @@ const analytics = getAnalytics(app);
             let p = document.getElementById('password').value; 
             let msg = document.getElementById('statusMessage');
             
-            if(!e || !p) { 
-                msg.style.color = "#f44336"; 
-                msg.innerText = "❌ Email aur Password dono daalein!"; 
-                return; 
-            }
-            
-            msg.style.color = "#ffcc00"; 
-            msg.innerText = "⏳ Login kar rahe hain...";
+            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password daalein!"; return; }
+            msg.style.color = "#ffcc00"; msg.innerText = "⏳ Login kar rahe hain...";
 
             signInWithEmailAndPassword(auth, e, p)
             .then(() => {
-                msg.style.color = "#4CAF50"; 
-                msg.innerText = "✅ Login Successful!";
+                msg.style.color = "#4CAF50"; msg.innerText = "✅ Login Successful!";
+                setTimeout(() => { showScreen('gameMenu'); }, 1000); 
             })
             .catch(error => {
-                msg.style.color = "#f44336"; 
-                msg.innerText = "❌ Galat Email ya Password!";
+                msg.style.color = "#f44336"; msg.innerText = "❌ Galat Email ya Password!";
             });
+        };
+
+        window.logoutUser = () => {
+            signOut(auth).then(() => {
+                showScreen('loginScreen');
+                document.getElementById('email').value = "";
+                document.getElementById('password').value = "";
+                document.getElementById('statusMessage').innerText = "";
+            });
+        };
+
+        window.showScreen = (screenId) => {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('gameMenu').classList.add('hidden');
+            document.getElementById('ludoArena').classList.add('hidden');
+            document.getElementById('pokerArena').classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+        };
+
+        window.playGame = (gameName, entryFee) => {
+            if(gameName === 'Ludo') showScreen('ludoArena');
+            if(gameName === 'Poker') showScreen('pokerArena');
+        };
+
+        window.exitGame = (currentArena) => {
+            showScreen('gameMenu');
+        };
+
+        window.rollDice = () => {
+            let dice = document.getElementById('dice');
+            dice.classList.add('rolling');
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                let num = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('ludoResult').innerText = "Aapka number aaya: " + num;
+            }, 500);
+        };
+
+        window.drawCard = () => {
+            let cards = ['🂡', '🂢', '🂣', '🂤', '🂥', '🂦', '🂧', '🂨', '🂩', '🂪', '🂫', '🂭', '🂮'];
+            let randomCard = cards[Math.floor(Math.random() * cards.length)];
+            document.getElementById('card').innerText = randomCard;
+            document.getElementById('pokerResult').innerText = "Card nikla: " + randomCard;
         };
     </script>
 </body>
