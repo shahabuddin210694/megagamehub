@@ -22,15 +22,16 @@
         .text-red { color: #f44336; }
 
         /* Game Arena Design */
-        #dice { font-size: 80px; cursor: pointer; margin: 20px; transition: transform 0.5s; display: inline-block; }
-        .rolling { animation: roll 0.5s infinite; }
-        @keyframes roll {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg); }
+        #dice, #card { font-size: 80px; cursor: pointer; margin: 20px; display: inline-block; transition: transform 0.3s; user-select: none; }
+        .rolling { animation: shake 0.4s infinite; }
+        @keyframes shake {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-20deg) scale(1.1); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(20deg) scale(1.1); }
+            100% { transform: rotate(0deg) scale(1); }
         }
-        
-        #card { font-size: 80px; margin: 20px; display: inline-block; }
+        .win-text { color: #4CAF50; font-weight: bold; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -72,15 +73,15 @@
         <h2 id="arenaTitle">Arena</h2>
         
         <div id="ludoSection" class="hidden">
-            <p>Ludo Game Shuru Ho Gaya Hai!</p>
+            <p>Target: 6 laao aur ₹20 jeeto!</p>
             <div id="dice" onclick="rollDice()">🎲</div>
             <h3 id="diceResult">Pasa phenkne ke liye click karein!</h3>
         </div>
 
         <div id="pokerSection" class="hidden">
-            <p>Poker Game Shuru Ho Gaya Hai!</p>
-            <div id="card">🃏</div>
-            <h3 id="cardResult">Poker khelne ki taiyari chal rahi hai...</h3>
+            <p>Target: Ikka (A♠) kholo aur ₹100 jeeto!</p>
+            <div id="card" onclick="drawCard()">🃏</div>
+            <h3 id="cardResult">Patta kholne ke liye click karein!</h3>
         </div>
 
         <button class="logout-btn" onclick="exitGame()">🚪 Back to Menu</button>
@@ -104,7 +105,6 @@
             document.getElementById('historyList').innerHTML = '<div class="history-item">⏳ Loading history...</div>';
         };
         
-        // NAYA: Jo game click hoga, sirf wahi dikhega
         window.showGameArena = function(gameName) {
             document.getElementById('gameMenu').classList.add('hidden');
             document.getElementById('gameArena').classList.remove('hidden');
@@ -114,32 +114,20 @@
                 document.getElementById('ludoSection').classList.remove('hidden');
                 document.getElementById('pokerSection').classList.add('hidden');
                 document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
+                document.getElementById('diceResult').className = "";
+                document.getElementById('dice').innerText = "🎲";
             } else if (gameName === 'Poker') {
                 document.getElementById('arenaTitle').innerText = "🃏 Poker Arena";
                 document.getElementById('pokerSection').classList.remove('hidden');
                 document.getElementById('ludoSection').classList.add('hidden');
+                document.getElementById('cardResult').innerText = "Patta kholne ke liye click karein!";
+                document.getElementById('cardResult').className = "";
+                document.getElementById('card').innerText = "🃏";
             }
         };
 
         window.exitGame = function() {
             window.showGameMenu();
-        };
-
-        // Dice Roll Animation
-        window.rollDice = function() {
-            const dice = document.getElementById('dice');
-            const resultText = document.getElementById('diceResult');
-            
-            dice.classList.add('rolling');
-            resultText.innerText = "⏳ Pasa ghoom raha hai...";
-
-            setTimeout(() => {
-                dice.classList.remove('rolling');
-                const randomNum = Math.floor(Math.random() * 6) + 1;
-                const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-                dice.innerText = diceFaces[randomNum];
-                resultText.innerText = "Aapka aaya: " + randomNum + "!";
-            }, 500);
         };
     </script>
 
@@ -177,6 +165,76 @@
                 historyList.innerHTML += `<div class="history-item ${colorClass}">${item}</div>`;
             });
         }
+
+        // --- NAYA: Jeetne par Paise Add Karne Ka Function ---
+        async function winMoney(amount, gameName) {
+            if(currentUser) {
+                currentBalance += amount;
+                document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                let message = `Prize (${gameName}): +₹${amount} (Balance: ₹${currentBalance})`;
+                await updateDoc(doc(db, "users", currentUser.uid), { 
+                    balance: currentBalance,
+                    history: arrayUnion(message)
+                });
+                refreshHistory();
+            }
+        }
+
+        // --- Ludo Ka Naya Logic ---
+        window.rollDice = function() {
+            const dice = document.getElementById('dice');
+            const resultText = document.getElementById('diceResult');
+            resultText.className = ""; 
+            
+            dice.classList.add('rolling');
+            resultText.innerText = "⏳ Pasa ghoom raha hai...";
+            
+            // Ek click ke baad dobara click na ho sake iske liye
+            dice.onclick = null; 
+
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const randomNum = Math.floor(Math.random() * 6) + 1;
+                const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                dice.innerText = diceFaces[randomNum];
+                
+                if (randomNum === 6) {
+                    resultText.innerText = "🎉 BINGO! Aapka 6 aaya! Aap ₹20 jeet gaye!";
+                    resultText.className = "win-text";
+                    winMoney(20, 'Ludo Win');
+                } else {
+                    resultText.innerText = `Aapka ${randomNum} aaya. Better luck next time!`;
+                }
+            }, 600);
+        };
+
+        // --- Poker Ka Naya Logic ---
+        window.drawCard = function() {
+            const card = document.getElementById('card');
+            const resultText = document.getElementById('cardResult');
+            resultText.className = "";
+            
+            card.classList.add('rolling');
+            resultText.innerText = "⏳ Patta khul raha hai...";
+            
+            card.onclick = null;
+
+            setTimeout(() => {
+                card.classList.remove('rolling');
+                // Alag-alag patte
+                const cards = ['7♥', 'K♦', 'Q♣', '2♠', 'J♠', '10♥', 'A♠', '5♦'];
+                const randomCard = cards[Math.floor(Math.random() * cards.length)];
+                card.innerText = randomCard;
+                
+                if (randomCard === 'A♠') {
+                    resultText.innerText = "🎰 JACKPOT! Ikka nikal aaya! Aap ₹100 jeet gaye!";
+                    resultText.className = "win-text";
+                    winMoney(100, 'Poker Jackpot');
+                } else {
+                    resultText.innerText = `Aapka patta: ${randomCard}. Haar gaye, fir koshish karein!`;
+                }
+            }, 600);
+        };
 
         window.registerUser = function() {
             const email = document.getElementById('email').value;
