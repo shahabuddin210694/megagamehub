@@ -25,6 +25,8 @@
         .modal-content { background: #2a2a2a; padding: 20px; border-radius: 10px; width: 80%; max-width: 350px; }
         .wa-btn { background: #25D366; width: 90%; margin-top: 10px; }
         .wa-btn:hover { background: #128C7E; }
+        .upi-btn { background: #0078FF; width: 90%; margin-top: 10px; }
+        .upi-btn:hover { background: #005bb5; }
         .close-btn { background: #f44336; width: 90%; margin-top: 5px; }
 
         #dice, #card { font-size: 80px; cursor: pointer; margin: 20px; display: inline-block; transition: transform 0.3s; user-select: none; }
@@ -57,7 +59,7 @@
         <div class="wallet-box">
             <h3>💰 Wallet Balance</h3>
             <h2 id="walletBalance">⏳ Loading...</h2>
-            <button onclick="depositMoney()">➕ Deposit ₹100</button>
+            <button onclick="openDepositModal()">➕ Deposit Funds</button>
             <button onclick="openWithdrawModal()">💸 Withdraw Money</button>
         </div>
 
@@ -73,6 +75,21 @@
         <button class="game-btn" onclick="playGame('Poker', 50)">🃏 Play Poker (Entry: ₹50)</button>
         
         <button class="logout-btn" onclick="logoutUser()">🚪 Log Out</button>
+    </div>
+
+    <div id="depositModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add Funds (UPI)</h3>
+            <p>Admin UPI: <b>9997210694ybl@ibl</b></p>
+            <input type="number" id="depositAmount" placeholder="Amount (Min ₹50)">
+            <button class="upi-btn" onclick="payViaUPI()">📱 Pay via UPI App</button>
+            
+            <p style="font-size: 13px; margin: 15px 0 5px 0; color: #ccc;">Payment ke baad 12-digit UTR daalein:</p>
+            <input type="text" id="depositUTR" placeholder="Enter UTR / Ref Number">
+            <button class="wa-btn" onclick="requestDeposit()">🟢 Submit & Notify Admin</button>
+            <button class="close-btn" onclick="closeDepositModal()">❌ Cancel</button>
+            <p id="depositError" class="text-red"></p>
+        </div>
     </div>
 
     <div id="withdrawModal" class="modal hidden">
@@ -194,6 +211,9 @@
         let currentUser = null;
         let currentBalance = 0;
 
+        const ADMIN_WA_NUMBER = "+919997210694"; 
+        const ADMIN_UPI_ID = "9997210694ybl@ibl";    
+
         function updateHistoryUI(historyArray) {
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = "";
@@ -218,6 +238,46 @@
             }
         }
 
+        window.openDepositModal = function() {
+            document.getElementById('depositModal').classList.remove('hidden');
+            document.getElementById('depositAmount').value = "";
+            document.getElementById('depositUTR').value = "";
+            document.getElementById('depositError').innerText = "";
+        };
+
+        window.closeDepositModal = function() {
+            document.getElementById('depositModal').classList.add('hidden');
+        };
+
+        window.payViaUPI = function() {
+            const amount = document.getElementById('depositAmount').value;
+            if(!amount || amount < 50) {
+                document.getElementById('depositError').innerText = "Kam se kam ₹50 deposit karein!";
+                return;
+            }
+            const upiLink = `upi://pay?pa=${ADMIN_UPI_ID}&pn=Admin&am=${amount}&cu=INR`;
+            window.location.href = upiLink; 
+        };
+
+        window.requestDeposit = async function() {
+            const amount = document.getElementById('depositAmount').value;
+            const utr = document.getElementById('depositUTR').value;
+            const errorMsg = document.getElementById('depositError');
+
+            if(!amount || amount < 50) { errorMsg.innerText = "Kam se kam ₹50 deposit karein!"; return; }
+            if(!utr || utr.length < 8) { errorMsg.innerText = "Kripya sahi UTR / Reference No. daalein!"; return; }
+
+            let message = `Deposit Req: +₹${amount} (Pending UTR: ${utr})`;
+            await updateDoc(doc(db, "users", currentUser.uid), { history: arrayUnion(message) });
+            refreshHistory();
+            
+            const waText = `Hello Admin!%0AMera User ID: ${currentUser.uid}%0AMujhe DEPOSIT karna hai:%0AAmount: ₹${amount}%0AUTR No: ${utr}%0AKripya mera wallet recharge kar dein.`;
+            const waUrl = `https://wa.me/${ADMIN_WA_NUMBER}?text=${waText}`;
+
+            closeDepositModal();
+            window.open(waUrl, "_blank");
+        };
+
         window.openWithdrawModal = function() {
             document.getElementById('withdrawModal').classList.remove('hidden');
             document.getElementById('modalBalance').innerText = "₹ " + currentBalance;
@@ -235,18 +295,9 @@
             const upi = document.getElementById('upiId').value;
             const errorMsg = document.getElementById('withdrawError');
 
-            if(isNaN(amount) || amount < 50) {
-                errorMsg.innerText = "Kam se kam ₹50 nikaal sakte hain!";
-                return;
-            }
-            if(amount > currentBalance) {
-                errorMsg.innerText = "Aapke paas itne paise nahi hain!";
-                return;
-            }
-            if(upi.trim() === "") {
-                errorMsg.innerText = "Kripya apna UPI ya Paytm number daalein!";
-                return;
-            }
+            if(isNaN(amount) || amount < 50) { errorMsg.innerText = "Kam se kam ₹50 nikaal sakte hain!"; return; }
+            if(amount > currentBalance) { errorMsg.innerText = "Aapke paas itne paise nahi hain!"; return; }
+            if(upi.trim() === "") { errorMsg.innerText = "Kripya apna UPI ya Paytm number daalein!"; return; }
 
             currentBalance -= amount;
             document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
@@ -254,9 +305,8 @@
             await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) });
             refreshHistory();
             
-            const adminNumber = "+919997210694";
-            const waText = `Hello Admin!%0AMera User ID: ${currentUser.uid}%0AMujhe withdraw karna hai:%0AAmount: ₹${amount}%0AUPI ID/No: ${upi}%0AKripya paise bhej dein.`;
-            const waUrl = `https://wa.me/${adminNumber}?text=${waText}`;
+            const waText = `Hello Admin!%0AMera User ID: ${currentUser.uid}%0AMujhe WITHDRAW karna hai:%0AAmount: ₹${amount}%0AUPI ID/No: ${upi}%0AKripya paise bhej dein.`;
+            const waUrl = `https://wa.me/${ADMIN_WA_NUMBER}?text=${waText}`;
 
             closeWithdrawModal();
             window.open(waUrl, "_blank");
@@ -310,47 +360,4 @@
         };
 
         window.loginUser = function() {
-            const email = document.getElementById('email').value; const password = document.getElementById('password').value; const status = document.getElementById('statusMessage');
-            if (email === "" || password === "") return; status.innerText = "Login ho raha hai... ⏳";
-            signInWithEmailAndPassword(auth, email, password).catch(() => { status.innerText = "❌ Galat password ya email!"; });
-        };
-
-        window.logoutUser = function() { signOut(auth); };
-
-        window.depositMoney = async function() {
-            if(currentUser) {
-                currentBalance += 100; document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                let message = `Deposit: +₹100 (Balance: ₹${currentBalance})`;
-                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) }); refreshHistory();
-            }
-        };
-
-        window.playGame = async function(gameName, entryFee) {
-            if(currentUser) {
-                if(currentBalance >= entryFee) {
-                    currentBalance -= entryFee; document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                    let message = `Played ${gameName}: -₹${entryFee} (Balance: ₹${currentBalance})`;
-                    await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(message) }); refreshHistory();
-                    window.showGameArena(gameName);
-                } else { alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein."); }
-            }
-        };
-
-        async function refreshHistory() {
-            if(currentUser) {
-                const docSnap = await getDoc(doc(db, "users", currentUser.uid));
-                if (docSnap.exists()) { updateHistoryUI(docSnap.data().history); }
-            }
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user; window.showGameMenu(); 
-                const docSnap = await getDoc(doc(db, "users", user.uid));
-                if (docSnap.exists()) { currentBalance = docSnap.data().balance; document.getElementById('walletBalance').innerText = "₹ " + currentBalance; updateHistoryUI(docSnap.data().history); } 
-                else { document.getElementById('walletBalance').innerText = "₹ 0"; updateHistoryUI([]); }
-            } else { currentUser = null; window.showLoginScreen(); }
-        });
-    </script>
-</body>
-</html>
+            const email = document.getElementById('email')
