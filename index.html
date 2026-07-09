@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +34,7 @@
         
         <div class="wallet-box">
             <h3>💰 Wallet Balance</h3>
-            <h2 id="walletBalance">₹ 0</h2>
+            <h2 id="walletBalance">⏳ Loading...</h2>
             <button onclick="depositMoney()">➕ Deposit ₹100</button>
             <button onclick="withdrawMoney()">➖ Withdraw ₹50</button>
         </div>
@@ -57,7 +58,7 @@
             document.getElementById('email').value = "";
             document.getElementById('password').value = "";
             document.getElementById('statusMessage').innerText = "";
-            document.getElementById('walletBalance').innerText = "₹ 0";
+            document.getElementById('walletBalance').innerText = "⏳ Loading...";
         };
     </script>
 
@@ -98,7 +99,7 @@
                 .then(async (userCredential) => { 
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         email: email,
-                        balance: 0  // Database mein naya account aur 0 balance save hoga
+                        balance: 0  
                     });
                     status.innerText = "";
                 })
@@ -123,12 +124,12 @@
             signOut(auth);
         };
 
-        // --- PAISA DEPOSIT / WITHDRAW KAREIN (Database Connection) ---
+        // --- PAISA DEPOSIT / WITHDRAW KAREIN ---
         window.depositMoney = async function() {
             if(currentUser) {
                 currentBalance += 100;
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); // Database mein update
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); 
             }
         };
 
@@ -136,7 +137,7 @@
             if(currentUser && currentBalance >= 50) {
                 currentBalance -= 50;
                 document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
-                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); // Database mein update
+                await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance }); 
             } else {
                 alert("Balance kam hai!");
             }
@@ -146,19 +147,20 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                window.showGameMenu(); // Login hai toh menu dikhao
+                window.showGameMenu(); 
                 
-                // Database se real balance nikalo
                 const docSnap = await getDoc(doc(db, "users", user.uid));
                 if (docSnap.exists()) {
                     currentBalance = docSnap.data().balance;
                     document.getElementById('walletBalance').innerText = "₹ " + currentBalance;
+                } else {
+                    document.getElementById('walletBalance').innerText = "₹ 0";
                 }
             } else {
                 currentUser = null;
-                window.showLoginScreen(); // Login nahi hai toh login screen dikhao
+                window.showLoginScreen(); 
             }
         });
     </script>
 </body>
-</html> 
+</html>
