@@ -29,6 +29,8 @@
             50% { transform: rotate(180deg) scale(1.2); }
             100% { transform: rotate(360deg); }
         }
+        
+        #card { font-size: 80px; margin: 20px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -67,11 +69,19 @@
     </div>
 
     <div id="gameArena" class="container hidden">
-        <h2 id="arenaTitle">🎲 Ludo Game</h2>
-        <p>Aapka Game Shuru Ho Gaya Hai!</p>
+        <h2 id="arenaTitle">Arena</h2>
         
-        <div id="dice" onclick="rollDice()">🎲</div>
-        <h3 id="diceResult">Pasa phenkne ke liye click karein!</h3>
+        <div id="ludoSection" class="hidden">
+            <p>Ludo Game Shuru Ho Gaya Hai!</p>
+            <div id="dice" onclick="rollDice()">🎲</div>
+            <h3 id="diceResult">Pasa phenkne ke liye click karein!</h3>
+        </div>
+
+        <div id="pokerSection" class="hidden">
+            <p>Poker Game Shuru Ho Gaya Hai!</p>
+            <div id="card">🃏</div>
+            <h3 id="cardResult">Poker khelne ki taiyari chal rahi hai...</h3>
+        </div>
 
         <button class="logout-btn" onclick="exitGame()">🚪 Back to Menu</button>
     </div>
@@ -93,17 +103,29 @@
             document.getElementById('walletBalance').innerText = "⏳ Loading...";
             document.getElementById('historyList').innerHTML = '<div class="history-item">⏳ Loading history...</div>';
         };
+        
+        // NAYA: Jo game click hoga, sirf wahi dikhega
         window.showGameArena = function(gameName) {
             document.getElementById('gameMenu').classList.add('hidden');
             document.getElementById('gameArena').classList.remove('hidden');
-            document.getElementById('arenaTitle').innerText = "🎲 " + gameName + " Arena";
-            document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
+            
+            if(gameName === 'Ludo') {
+                document.getElementById('arenaTitle').innerText = "🎲 Ludo Arena";
+                document.getElementById('ludoSection').classList.remove('hidden');
+                document.getElementById('pokerSection').classList.add('hidden');
+                document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
+            } else if (gameName === 'Poker') {
+                document.getElementById('arenaTitle').innerText = "🃏 Poker Arena";
+                document.getElementById('pokerSection').classList.remove('hidden');
+                document.getElementById('ludoSection').classList.add('hidden');
+            }
         };
+
         window.exitGame = function() {
             window.showGameMenu();
         };
 
-        // Dice Roll Animation Function
+        // Dice Roll Animation
         window.rollDice = function() {
             const dice = document.getElementById('dice');
             const resultText = document.getElementById('diceResult');
@@ -114,13 +136,10 @@
             setTimeout(() => {
                 dice.classList.remove('rolling');
                 const randomNum = Math.floor(Math.random() * 6) + 1;
-                
-                // Pasa ki shape badalna
                 const diceFaces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
                 dice.innerText = diceFaces[randomNum];
-                
                 resultText.innerText = "Aapka aaya: " + randomNum + "!";
-            }, 500); // Aadhe second tak ghumega
+            }, 500);
         };
     </script>
 
@@ -233,7 +252,6 @@
                     });
                     refreshHistory();
                     
-                    // NAYA: Paise katne ke baad Game Arena khulega!
                     window.showGameArena(gameName);
                 } else {
                     alert("❌ Balance kam hai! Khelne ke liye pehle deposit karein.");
