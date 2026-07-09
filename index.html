@@ -289,8 +289,18 @@
             window.location.href = `https://wa.me/${ADMIN_WA}?text=Withdraw%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUPI: ${u}`; window.closeModals(); 
         };
         
-        // ---- FIXED LOGIN & REGISTER FUNCTIONS WITH ERROR HANDLING ----
         window.registerUser = () => { 
             let e = document.getElementById('email').value, p = document.getElementById('password').value; 
             let msg = document.getElementById('statusMessage');
-            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password dono da
+            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password dono daalein!"; return; }
+            msg.style.color = "#ffcc00"; msg.innerText = "⏳ Register kar rahe hain...";
+            
+            createUserWithEmailAndPassword(auth, e, p)
+            .then(u => {
+                setDoc(doc(db, "users", u.user.uid), {email: e, balance: 0, history: []});
+                msg.style.color = "#4CAF50"; msg.innerText = "✅ Account ban gaya!";
+            })
+            .catch(error => {
+                msg.style.color = "#f44336"; 
+                if(error.code === 'auth/weak-password') { msg.innerText = "❌ Password kam se kam 6 letters ka hona chahiye!"; }
+                else if(error.code === 'auth/email-already-in-use') { msg.innerText = "❌ Ye email peh
