@@ -150,18 +150,19 @@
             <input type="text" id="depositUTR" placeholder="Enter UTR No.">
             <button style="background: #25D366; width: 90%; margin-top: 5px;" onclick="requestDeposit()">🟢 Notify Admin</button>
             <button class="btn-red" onclick="closeModals()">❌ Cancel</button>
-            <p id="depositError" class="text-red"></p>
+            <p id="depositError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div id="withdrawModal" class="modal hidden">
         <div class="modal-content">
             <h3>Withdraw Funds</h3>
+            <p style="color: #ccc; font-size: 14px;">Available Balance: <b id="availBalanceModal">₹0</b></p>
             <input type="number" id="withdrawAmount" placeholder="Amount (Min ₹50)">
             <input type="text" id="upiId" placeholder="Your UPI / Paytm No.">
             <button style="background: #25D366; width: 90%; margin-top: 10px;" onclick="requestWithdrawal()">🟢 Request WhatsApp</button>
             <button class="btn-red" onclick="closeModals()">❌ Cancel</button>
-            <p id="withdrawError" class="text-red"></p>
+            <p id="withdrawError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
         </div>
     </div>
 
@@ -173,10 +174,7 @@
         };
 
         window.downloadAPK = function() {
-            // Yahan aapko apne Google Drive ka direct link daalna hoga baad mein.
-            // Abhi ke liye ye aapko ek alert dega.
             alert("Sir, APK banne ke baad aap yahan uska link laga sakte hain. Niche diye gaye steps padhein!");
-            // window.location.href = "APKA_GOOGLE_DRIVE_APK_LINK_YAHAN_AAYEGA";
         };
 
         window.showScreen = function(screenId) {
@@ -185,9 +183,12 @@
         };
 
         window.exitGame = function() { showScreen('gameMenu'); };
+        
         window.closeModals = function() { 
             document.getElementById('depositModal').classList.add('hidden');
             document.getElementById('withdrawModal').classList.add('hidden');
+            document.getElementById('depositError').innerText = "";
+            document.getElementById('withdrawError').innerText = "";
         };
     </script>
 
@@ -222,13 +223,17 @@
         }
 
         async function addMoney(amt, msg) {
-            currentBalance += amt; document.getElementById('walletBalance').innerText = "₹" + currentBalance;
+            currentBalance += amt; 
+            document.getElementById('walletBalance').innerText = "₹" + currentBalance;
+            document.getElementById('availBalanceModal').innerText = "₹" + currentBalance;
             await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(`+₹${amt} (${msg})`) });
             refreshData();
         }
 
         async function deductMoney(amt, msg) {
-            currentBalance -= amt; document.getElementById('walletBalance').innerText = "₹" + currentBalance;
+            currentBalance -= amt; 
+            document.getElementById('walletBalance').innerText = "₹" + currentBalance;
+            document.getElementById('availBalanceModal').innerText = "₹" + currentBalance;
             await updateDoc(doc(db, "users", currentUser.uid), { balance: currentBalance, history: arrayUnion(`-₹${amt} (${msg})`) });
             refreshData();
         }
@@ -265,18 +270,60 @@
         };
 
         // Auth & Banking logic
-        window.openDepositModal = () => document.getElementById('depositModal').classList.remove('hidden');
-        window.openWithdrawModal = () => document.getElementById('withdrawModal').classList.remove('hidden');
-        window.payViaUPI = () => { let a = document.getElementById('depositAmount').value; if(a>=50) window.location.href = `upi://pay?pa=${ADMIN_UPI}&pn=Admin&am=${a}&cu=INR`; };
-        window.requestDeposit = async () => { let a = document.getElementById('depositAmount').value, u = document.getElementById('depositUTR').value; if(a>=50 && u){ await updateDoc(doc(db, "users", currentUser.uid), { history: arrayUnion(`Deposit Req: +₹${a} (UTR: ${u})`) }); window.location.href = `https://wa.me/${ADMIN_WA}?text=Deposit%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUTR: ${u}`; closeModals(); refreshData(); }};
-        window.requestWithdrawal = async () => { let a = document.getElementById('withdrawAmount').value, u = document.getElementById('upiId').value; if(a>=50 && a<=currentBalance && u){ await deductMoney(a, 'Withdraw Pending'); window.location.href = `https://wa.me/${ADMIN_WA}?text=Withdraw%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUPI: ${u}`; closeModals(); }};
+        window.openDepositModal = () => {
+            document.getElementById('depositModal').classList.remove('hidden');
+            document.getElementById('depositError').innerText = "";
+        };
+        
+        window.openWithdrawModal = () => {
+            document.getElementById('withdrawModal').classList.remove('hidden');
+            document.getElementById('availBalanceModal').innerText = "₹" + currentBalance;
+            document.getElementById('withdrawError').innerText = "";
+        };
+
+        window.payViaUPI = () => { 
+            let a = document.getElementById('depositAmount').value; 
+            if(a>=50) window.location.href = `upi://pay?pa=${ADMIN_UPI}&pn=Admin&am=${a}&cu=INR`; 
+            else document.getElementById('depositError').innerText = "❌ Min ₹50 daalein!";
+        };
+
+        window.requestDeposit = async () => { 
+            let a = parseInt(document.getElementById('depositAmount').value); 
+            let u = document.getElementById('depositUTR').value; 
+            let err = document.getElementById('depositError');
+
+            if(isNaN(a) || a < 50) { err.innerText = "❌ Min ₹50 deposit karein!"; return; }
+            if(u.trim() === "") { err.innerText = "❌ UTR Number daalna zaroori hai!"; return; }
+
+            err.innerText = "⏳ Processing...";
+            await updateDoc(doc(db, "users", currentUser.uid), { history: arrayUnion(`Deposit Req: +₹${a} (UTR: ${u})`) }); 
+            window.location.href = `https://wa.me/${ADMIN_WA}?text=Deposit%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUTR: ${u}`; 
+            closeModals(); 
+            refreshData(); 
+        };
+
+        window.requestWithdrawal = async () => { 
+            let a = parseInt(document.getElementById('withdrawAmount').value); 
+            let u = document.getElementById('upiId').value; 
+            let err = document.getElementById('withdrawError');
+
+            if(isNaN(a) || a < 50) { err.innerText = "❌ Min ₹50 nikal sakte hain!"; return; }
+            if(a > currentBalance) { err.innerText = "❌ Aapke account mein itne paise nahi hain!"; return; }
+            if(u.trim() === "") { err.innerText = "❌ Apna UPI ID / Paytm number daalein!"; return; }
+
+            err.innerText = "⏳ Processing...";
+            await deductMoney(a, 'Withdraw Pending'); 
+            window.location.href = `https://wa.me/${ADMIN_WA}?text=Withdraw%0AUid: ${currentUser.uid}%0AAmt: ₹${a}%0AUPI: ${u}`; 
+            closeModals(); 
+        };
         
         window.registerUser = () => { let e = document.getElementById('email').value, p = document.getElementById('password').value; if(e&&p) createUserWithEmailAndPassword(auth, e, p).then(u => setDoc(doc(db, "users", u.user.uid), {email: e, balance: 0, history: []})); };
         window.loginUser = () => { let e = document.getElementById('email').value, p = document.getElementById('password').value; if(e&&p) signInWithEmailAndPassword(auth, e, p); };
         window.logoutUser = () => signOut(auth);
 
-        async function refreshData() { if(currentUser) { let d = await getDoc(doc(db, "users", currentUser.uid)); if(d.exists()){ currentBalance = d.data().balance; document.getElementById('walletBalance').innerText = "₹" + currentBalance; updateHistory(d.data().history); } } }
-        onAuthStateChanged(auth, async (user) => { if(user) { currentUser = user; showScreen('gameMenu'); await refreshData(); } else { currentUser = null; showScreen('loginScreen'); } });
-    </script>
-</body>
-</html>
+        async function refreshData() { 
+            if(currentUser) { 
+                let d = await getDoc(doc(db, "users", currentUser.uid)); 
+                if(d.exists()){ 
+                    currentBalance = d.data().balance; 
+                    document.getElementById('walletBalance').innerText = "₹" + currentBal
