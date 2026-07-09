@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mega Game Hub</title>
     <style>
-        body { background-color: #121212; color: white; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .container { max-width: 400px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        body { background-color: #121212; color: white; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        .container { max-width: 400px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); position: relative; z-index: 10; }
         input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
-        button { background: #4CAF50; color: white; border: none; padding: 10px 15px; margin: 5px; cursor: pointer; border-radius: 5px; font-size: 16px; width: 45%; }
-        button:hover { background: #45a049; }
+        button { background: #4CAF50; color: white; border: none; padding: 10px 15px; margin: 5px; cursor: pointer; border-radius: 5px; font-size: 16px; width: 45%; transition: 0.2s; }
+        button:hover { background: #45a049; transform: scale(1.05); }
         .wallet-box { background: #333; padding: 15px; border-radius: 8px; margin: 15px 0; }
         .hidden { display: none; }
         .game-btn { background: #ff9800; width: 90%; margin-top: 10px; }
@@ -31,7 +31,28 @@
             75% { transform: rotate(20deg) scale(1.1); }
             100% { transform: rotate(0deg) scale(1); }
         }
-        .win-text { color: #4CAF50; font-weight: bold; font-size: 18px; }
+        .win-text { color: #4CAF50; font-weight: bold; font-size: 18px; animation: pop 0.5s ease; }
+        @keyframes pop { 50% { transform: scale(1.2); } }
+
+        /* NAYA: Stickers / Emotes Tray */
+        .emoji-tray { background: #222; padding: 10px; border-radius: 10px; margin-top: 20px; display: flex; justify-content: space-around; }
+        .emoji-btn { background: transparent; border: 2px solid #555; font-size: 24px; padding: 5px 10px; width: auto; }
+        .emoji-btn:hover { background: #444; }
+
+        /* Udte hue Ande/Pathar ka animation */
+        .flying-item {
+            position: fixed;
+            font-size: 60px;
+            bottom: -50px;
+            animation: throwItemAnim 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes throwItemAnim {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-40vh) scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: translateY(-80vh) scale(2) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -84,10 +105,44 @@
             <h3 id="cardResult">Patta kholne ke liye click karein!</h3>
         </div>
 
+        <div class="emoji-tray">
+            <button class="emoji-btn" onclick="throwSticker('🥚')">🥚</button>
+            <button class="emoji-btn" onclick="throwSticker('🧱')">🧱</button>
+            <button class="emoji-btn" onclick="throwSticker('🪨')">🪨</button>
+            <button class="emoji-btn" onclick="throwSticker('🍅')">🍅</button>
+        </div>
+
         <button class="logout-btn" onclick="exitGame()">🚪 Back to Menu</button>
     </div>
 
     <script>
+        // --- NAYA: Sound Effects Setup ---
+        const sounds = {
+            roll: new Audio('https://actions.google.com/sounds/v1/foley/rolling_dice_on_table.ogg'),
+            win: new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg'),
+            lose: new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg'),
+            throw: new Audio('https://actions.google.com/sounds/v1/cartoon/swoosh_fast.ogg')
+        };
+
+        // --- NAYA: Stickers Fenkne Ka Function ---
+        window.throwSticker = function(emoji) {
+            sounds.throw.currentTime = 0; // Sound shuru se play ho
+            sounds.throw.play();
+
+            const sticker = document.createElement('div');
+            sticker.innerText = emoji;
+            sticker.className = 'flying-item';
+            
+            // Random jagah se ugega screen pe
+            const randomX = Math.floor(Math.random() * 80) + 10; 
+            sticker.style.left = randomX + 'vw';
+            
+            document.body.appendChild(sticker);
+
+            // 1 second baad sticker screen se gayab
+            setTimeout(() => { document.body.removeChild(sticker); }, 1000);
+        };
+
         // Screen badalne ke functions
         window.showGameMenu = function() {
             document.getElementById('loginScreen').classList.add('hidden');
@@ -116,6 +171,7 @@
                 document.getElementById('diceResult').innerText = "Pasa phenkne ke liye click karein!";
                 document.getElementById('diceResult').className = "";
                 document.getElementById('dice').innerText = "🎲";
+                document.getElementById('dice').onclick = rollDice; // Click wapas chalu
             } else if (gameName === 'Poker') {
                 document.getElementById('arenaTitle').innerText = "🃏 Poker Arena";
                 document.getElementById('pokerSection').classList.remove('hidden');
@@ -123,6 +179,7 @@
                 document.getElementById('cardResult').innerText = "Patta kholne ke liye click karein!";
                 document.getElementById('cardResult').className = "";
                 document.getElementById('card').innerText = "🃏";
+                document.getElementById('card').onclick = drawCard; // Click wapas chalu
             }
         };
 
@@ -166,7 +223,6 @@
             });
         }
 
-        // --- NAYA: Jeetne par Paise Add Karne Ka Function ---
         async function winMoney(amount, gameName) {
             if(currentUser) {
                 currentBalance += amount;
@@ -180,7 +236,7 @@
             }
         }
 
-        // --- Ludo Ka Naya Logic ---
+        // Ludo Logic With Sound
         window.rollDice = function() {
             const dice = document.getElementById('dice');
             const resultText = document.getElementById('diceResult');
@@ -188,8 +244,8 @@
             
             dice.classList.add('rolling');
             resultText.innerText = "⏳ Pasa ghoom raha hai...";
+            sounds.roll.play(); // Aawaz shuru
             
-            // Ek click ke baad dobara click na ho sake iske liye
             dice.onclick = null; 
 
             setTimeout(() => {
@@ -199,16 +255,18 @@
                 dice.innerText = diceFaces[randomNum];
                 
                 if (randomNum === 6) {
+                    sounds.win.play(); // Jeetne ki aawaz (Taaliyan)
                     resultText.innerText = "🎉 BINGO! Aapka 6 aaya! Aap ₹20 jeet gaye!";
                     resultText.className = "win-text";
                     winMoney(20, 'Ludo Win');
                 } else {
+                    sounds.lose.play(); // Haarne ki funny aawaz (Boing)
                     resultText.innerText = `Aapka ${randomNum} aaya. Better luck next time!`;
                 }
-            }, 600);
+            }, 800);
         };
 
-        // --- Poker Ka Naya Logic ---
+        // Poker Logic With Sound
         window.drawCard = function() {
             const card = document.getElementById('card');
             const resultText = document.getElementById('cardResult');
@@ -216,24 +274,26 @@
             
             card.classList.add('rolling');
             resultText.innerText = "⏳ Patta khul raha hai...";
+            sounds.roll.play(); // Card shuffle aawaz (roll sound used temporarily)
             
             card.onclick = null;
 
             setTimeout(() => {
                 card.classList.remove('rolling');
-                // Alag-alag patte
                 const cards = ['7♥', 'K♦', 'Q♣', '2♠', 'J♠', '10♥', 'A♠', '5♦'];
                 const randomCard = cards[Math.floor(Math.random() * cards.length)];
                 card.innerText = randomCard;
                 
                 if (randomCard === 'A♠') {
+                    sounds.win.play(); // Jeetne ki aawaz
                     resultText.innerText = "🎰 JACKPOT! Ikka nikal aaya! Aap ₹100 jeet gaye!";
                     resultText.className = "win-text";
                     winMoney(100, 'Poker Jackpot');
                 } else {
+                    sounds.lose.play(); // Haarne ki aawaz
                     resultText.innerText = `Aapka patta: ${randomCard}. Haar gaye, fir koshish karein!`;
                 }
-            }, 600);
+            }, 800);
         };
 
         window.registerUser = function() {
