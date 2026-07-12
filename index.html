@@ -6,55 +6,57 @@
     <title>Mega Game Hub - Pro</title>
     <style>
         body { background-color: #0d0d0d; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 10px; overflow-x: hidden; }
-        .container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.8); border: 1px solid #333; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: white; outline: none;}
+       .container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.8); border: 1px solid #333; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #222; color: white; }
         button { font-weight: bold; color: white; border: none; padding: 12px 15px; margin: 5px; cursor: pointer; border-radius: 8px; font-size: 15px; transition: 0.3s; }
         button:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-        
-        .wallet-box { background: linear-gradient(135deg, #2c3e50, #000000); padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px solid #ff9800; }
-        .hidden { display: none !important; }
-        
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+       .wallet-box { background: linear-gradient(135deg, #2c3e50, #000000); padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px solid #ff9800; }
+       .hidden { display: none; }
+
         /* Buttons */
-        .btn-green { background: #4CAF50; width: 45%; }
-        .btn-blue { background: #008CBA; width: 45%; }
-        .btn-red { background: #f44336; width: 90%; margin-top: 15px; }
-        .btn-download { background: linear-gradient(90deg, #ff007f, #7928ca); width: 90%; margin-top: 15px; font-size: 18px; padding: 15px; border-radius: 10px; animation: pulse 2s infinite; }
-        
+       .btn-green { background: #4CAF50; width: 45%; }
+       .btn-blue { background: #008CBA; width: 45%; }
+       .btn-red { background: #f44336; width: 90%; margin-top: 15px; }
+       .btn-download { background: linear-gradient(90deg, #ff007f, #7928ca); width: 90%; margin-top: 15px; font-size: 18px; padding: 15px; border-radius: 10px; animation: pulse 2s infinite; }
+
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
         /* Game Cards */
-        .game-card { background: #262626; border-radius: 10px; padding: 15px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; border: 1px solid #444; }
-        .game-icon { font-size: 40px; margin-right: 15px; background: #111; padding: 10px; border-radius: 10px; }
-        .game-info { text-align: left; flex-grow: 1; }
-        .game-info h3 { margin: 0 0 5px 0; color: #ff9800; }
-        .game-info p { margin: 0; font-size: 13px; color: #aaa; }
-        .play-btn { background: #ff9800; width: 80px; padding: 10px; }
+       .game-card { background: #262626; border-radius: 10px; padding: 15px; margin: 15px 0; display: flex; align-items: center; justify-content: space-between; border: 1px solid #444; }
+       .game-icon { font-size: 40px; margin-right: 15px; background: #111; padding: 10px; border-radius: 10px; }
+       .game-info { text-align: left; flex-grow: 1; }
+       .game-info h3 { margin: 0 0 5px 0; color: #ff9800; }
+       .game-info p { margin: 0; font-size: 13px; color: #aaa; }
+       .play-btn { background: #ff9800; width: 80px; padding: 10px; }
 
         /* Ludo Arena */
-        .ludo-board { background: #fff; width: 300px; height: 300px; margin: 20px auto; border-radius: 10px; border: 5px solid #333; position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px; padding: 5px; }
-        .l-box { border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: white; }
-        .l-red { background: #ff4d4d; } .l-green { background: #4CAF50; }
-        .l-yellow { background: #ffcc00; } .l-blue { background: #3385ff; }
-        .l-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        
+       .ludo-board { background: #fff; width: 300px; height: 300px; margin: 20px auto; border-radius: 10px; border: 5px solid #333; position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px; padding: 5px; }
+       .l-box { border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: white; }
+       .l-red { background: #ff4d4d; }.l-green { background: #4CAF50; }
+       .l-yellow { background: #ffcc00; }.l-blue { background: #3385ff; }
+       .l-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
         /* Poker Arena */
-        .poker-table { background: radial-gradient(circle, #006600, #003300); width: 320px; height: 200px; margin: 30px auto; border-radius: 100px; position: relative; border: 8px solid #663300; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
-        .p-seat { width: 40px; height: 40px; background: #222; border-radius: 50%; position: absolute; border: 2px solid #ccc; color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
-        .s1 { top: -20px; left: 140px; } .s2 { bottom: -20px; left: 140px; }
-        .s3 { top: 70px; left: -20px; } .s4 { top: 70px; right: -20px; }
-        .s5 { top: 10px; left: 25px; } .s6 { top: 10px; right: 25px; }
-        .p-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 35px; cursor: pointer;}
+       .poker-table { background: radial-gradient(circle, #006600, #003300); width: 320px; height: 200px; margin: 30px auto; border-radius: 100px; position: relative; border: 8px solid #663300; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+       .p-seat { width: 40px; height: 40px; background: #222; border-radius: 50%; position: absolute; border: 2px solid #ccc; color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; }
+       .s1 { top: -20px; left: 140px; }.s2 { bottom: -20px; left: 140px; }
+       .s3 { top: 70px; left: -20px; }.s4 { top: 70px; right: -20px; }
+       .s5 { top: 10px; left: 25px; }.s6 { top: 10px; right: 25px; }
+       .p-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 35px; }
 
         /* History & Modals */
-        .history-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: left; max-height: 120px; overflow-y: auto; border: 1px solid #333; }
-        .history-item { padding: 5px 0; border-bottom: 1px solid #333; font-size: 13px; }
-        .text-green { color: #4CAF50; } .text-red { color: #f44336; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: #1a1a1a; padding: 25px; border-radius: 12px; width: 85%; max-width: 350px; border: 1px solid #444; max-height: 90vh; overflow-y: auto; }
-        
+       .history-box { background: #111; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: left; max-height: 120px; overflow-y: auto; border: 1px solid #333; }
+       .history-item { padding: 5px 0; border-bottom: 1px solid #333; font-size: 13px; }
+       .text-green { color: #4CAF50; }.text-red { color: #f44336; }
+       .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: flex; justify-content: center; align-items: center; }
+       .modal-content { background: #1a1a1a; padding: 25px; border-radius: 12px; width: 85%; max-width: 350px; border: 1px solid #444; }
+
         #dice { font-size: 50px; cursor: pointer; transition: 0.3s; }
-        .rolling { animation: shake 0.4s infinite; }
+       .rolling { animation: shake 0.4s infinite; }
         @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-20deg); } 75% { transform: rotate(20deg); } }
+       .user-info { font-size: 12px; color: #888; margin: 10px 0; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -63,22 +65,23 @@
         <h1 style="color: #ff9800;">🔥 Mega Game Hub</h1>
         <p>Login ya Register Karein</p>
         <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="password" placeholder="Password (Min 6 chars)">
-        <button class="btn-green" type="button" onclick="loginUser()">Login</button>
-        <button class="btn-blue" type="button" onclick="registerUser()">Register</button>
-        <p id="statusMessage" style="font-weight: bold; margin-top: 15px; font-size: 14px; min-height: 20px;"></p>
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn-green" onclick="loginUser()">Login</button>
+        <button class="btn-blue" onclick="registerUser()">Register</button>
+        <p id="statusMessage"></p>
     </div>
 
     <div id="gameMenu" class="container hidden">
         <h2 style="margin-top:0;">🏆 Lobby</h2>
+        <div class="user-info">UID: <span id="userUID">Loading...</span></div>
         <div class="wallet-box">
             <h4 style="margin: 0; color: #ccc;">💰 Wallet Balance</h4>
-            <h1 id="walletBalance" style="margin: 10px 0; color: #4CAF50;">₹ 0</h1>
-            <button class="btn-green" onclick="alert('Deposit system coming soon!')">➕ Add Cash</button>
-            <button class="btn-blue" onclick="alert('Withdraw system coming soon!')">💸 Withdraw</button>
+            <h1 id="walletBalance" style="margin: 10px 0; color: #4CAF50;">⏳ Loading...</h1>
+            <button class="btn-green" onclick="openDepositModal()">➕ Add Cash</button>
+            <button class="btn-blue" onclick="openWithdrawModal()">💸 Withdraw</button>
         </div>
 
-        <button class="btn-download" onclick="alert('Downloading APK...')">📲 Download App (APK)</button>
+        <button class="btn-download" onclick="downloadAPK()">📲 Download App (APK)</button>
 
         <div class="game-card">
             <div class="game-icon">🎲</div>
@@ -100,16 +103,16 @@
 
         <div class="history-box">
             <h4 style="margin: 0 0 5px 0;">📜 Passbook</h4>
-            <div id="historyList"><div class="history-item">Naya Account Ban Gaya Hai!</div></div>
+            <div id="historyList"><div class="history-item">Loading...</div></div>
         </div>
-        
+
         <button class="btn-red" onclick="logoutUser()">🚪 Log Out</button>
     </div>
 
     <div id="ludoArena" class="container hidden">
         <h2>🎲 Ludo Arena</h2>
         <p>Target: 6 laao aur jeeto!</p>
-        
+
         <div class="ludo-board">
             <div class="l-box l-red">P1</div>
             <div class="l-box l-green">P2</div>
@@ -117,15 +120,15 @@
             <div class="l-box l-blue">P4</div>
             <div class="l-center" id="dice" onclick="rollDice()">🎲</div>
         </div>
-        
+
         <h3 id="ludoResult" style="height: 30px;">Click the dice!</h3>
-        <button class="btn-red" onclick="exitGame('ludoArena')">🔙 Back to Lobby</button>
+        <button class="btn-red" onclick="exitGame()">🔙 Back to Lobby</button>
     </div>
 
     <div id="pokerArena" class="container hidden">
         <h2>🃏 Poker Table</h2>
         <p>Target: Ikka (A♠) kholo aur jeeto!</p>
-        
+
         <div class="poker-table">
             <div class="p-seat s1">P1</div>
             <div class="p-seat s2">P2</div>
@@ -133,126 +136,202 @@
             <div class="p-seat s4">P4</div>
             <div class="p-seat s5">P5</div>
             <div class="p-seat s6">P6</div>
-            <div class="p-center" id="card" onclick="drawCard()">🂠</div>
+            <div class="p-center" id="card" onclick="drawCard()" style="cursor: pointer;">🂠</div>
         </div>
-        <h3 id="pokerResult" style="height: 30px;">Click the card!</h3>
-        <button class="btn-red" onclick="exitGame('pokerArena')">🔙 Back to Lobby</button>
+
+        <h3 id="pokerResult" style="height: 30px;">Click the card in center!</h3>
+        <button class="btn-red" onclick="exitGame()">🔙 Back to Lobby</button>
     </div>
 
+    <div id="depositModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Add Funds (UPI)</h3>
+            <p>Admin UPI: <b style="color:#ff9800;">9997210694ybl@ibl</b></p>
+            <input type="number" id="depositAmount" placeholder="Amount (Min ₹50)">
+            <button style="background: #0078FF; width: 90%; margin-top: 10px;" onclick="payViaUPI()">📱 Pay via UPI App</button>
+            <p style="font-size: 12px; margin: 15px 0 5px;">Payment ke baad 12-digit UTR daalein:</p>
+            <input type="text" id="depositUTR" placeholder="Enter UTR No.">
+            <button style="background: #25D366; width: 90%; margin-top: 5px;" onclick="requestDeposit()">🟢 Notify Admin</button>
+            <button class="btn-red" onclick="closeModals()">❌ Cancel</button>
+            <p id="depositError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Withdraw Funds</h3>
+            <p style="color: #ccc; font-size: 14px;">Available Balance: <b id="availBalanceModal">₹0</b></p>
+            <input type="number" id="withdrawAmount" placeholder="Amount (Min ₹50)">
+            <input type="text" id="upiId" placeholder="Your UPI / Paytm No.">
+            <button style="background: #25D366; width: 90%; margin-top: 10px;" onclick="requestWithdrawal()">🟢 Request WhatsApp</button>
+            <button class="btn-red" onclick="closeModals()">❌ Cancel</button>
+            <p id="withdrawError" class="text-red" style="font-weight: bold; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        const sounds = {
+            roll: new Audio('https://actions.google.com/sounds/v1/foley/rolling_dice_on_table.ogg'),
+            win: new Audio('https://actions.google.com/sounds/v1/crowds/crowd_cheer.ogg'),
+            lose: new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg')
+        };
+
+        window.downloadAPK = function() {
+            alert("Sir, APK banne ke baad aap yahan uska link laga sakte hain.");
+        };
+
+        window.showScreen = function(screenId) {
+            document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+        };
+
+        window.exitGame = function() { showScreen('gameMenu'); };
+
+        window.closeModals = function() {
+            document.getElementById('depositModal').classList.add('hidden');
+            document.getElementById('withdrawModal').classList.add('hidden');
+            document.getElementById('depositError').innerText = "";
+            document.getElementById('withdrawError').innerText = "";
+        };
+    </script>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // 🔥 YAHAN APNA FIREBASE CONFIG DAALEIN 🔥
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBH_oyJjcXiElydtfMHsEIOGAgzHryy1m8",
-  authDomain: "megagamehub-f8ff3.firebaseapp.com",
-  projectId: "megagamehub-f8ff3",
-  storageBucket: "megagamehub-f8ff3.firebasestorage.app",
-  messagingSenderId: "918110428941",
-  appId: "1:918110428941:web:3c0de8c0c5a52fca41da44",
-  measurementId: "G-33QNKJNC29"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBH_oyJjcXiElydtfMHsEIOGAgzHryy1m8",
+            authDomain: "megagamehub-f8ff3.firebaseapp.com",
+            projectId: "megagamehub-f8ff3",
+            storageBucket: "megagamehub-f8ff3.firebasestorage.app",
+            messagingSenderId: "918110428941",
+            appId: "1:918110428941:web:3c0de8c0c5a52fca41da44"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        window.registerUser = () => { 
-            let e = document.getElementById('email').value;
-            let p = document.getElementById('password').value; 
-            let msg = document.getElementById('statusMessage');
-            
-            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password daalein!"; return; }
-            msg.style.color = "#ffcc00"; msg.innerText = "⏳ Register kar rahe hain...";
-            
-            createUserWithEmailAndPassword(auth, e, p)
-            .then(u => {
-                setDoc(doc(db, "users", u.user.uid), { email: e, balance: 0, history: [] });
-                msg.style.color = "#4CAF50"; msg.innerText = "✅ Account ban gaya!";
-                setTimeout(() => { showScreen('gameMenu'); }, 1000); 
-            })
-            .catch(error => {
-                msg.style.color = "#f44336"; 
-                if(error.code === 'auth/weak-password') msg.innerText = "❌ Password 6 letters ka hona chahiye!"; 
-                else if(error.code === 'auth/email-already-in-use') msg.innerText = "❌ Ye Email register hai! Login karein."; 
-                else msg.innerText = "❌ Error: " + error.message; 
+        let currentUser = null;
+        let currentBalance = 0;
+        let unsubscribeWallet = null;
+        const ADMIN_WA = "919997210694";
+        const ADMIN_UPI = "9997210694ybl@ibl";
+
+        function updateHistory(arr) {
+            const list = document.getElementById('historyList');
+            list.innerHTML = "";
+            if (!arr || arr.length === 0) {
+                list.innerHTML = '<div class="history-item">No transactions yet.</div>';
+                return;
+            }
+            [...arr].reverse().slice(0, 10).forEach(item => {
+                let cl = item.includes("+")? "text-green" : "text-red";
+                list.innerHTML += `<div class="history-item ${cl}">${item}</div>`;
             });
+        }
+
+        function updateWalletUI(balance) {
+            currentBalance = balance;
+            document.getElementById('walletBalance').innerText = "₹" + currentBalance;
+            document.getElementById('availBalanceModal').innerText = "₹" + currentBalance;
+        }
+
+        async function deductMoney(amt, msg) {
+            if (currentBalance < amt) return false;
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    balance: currentBalance - amt,
+                    history: arrayUnion(`-₹${amt} (${msg}) - ${new Date().toLocaleTimeString()}`)
+                });
+                return true;
+            } catch (e) {
+                console.error("Deduct error:", e);
+                return false;
+            }
+        }
+
+        window.playGame = async function(game, fee) {
+            if(!currentUser) return;
+            if(currentBalance >= fee) {
+                const success = await deductMoney(fee, `Played ${game}`);
+                if(success) {
+                    if(game === 'Ludo') {
+                        showScreen('ludoArena');
+                        document.getElementById('ludoResult').innerText = "Roll the dice!";
+                        document.getElementById('dice').innerText = "🎲";
+                        document.getElementById('dice').onclick = window.rollDice;
+                    }
+                    if(game === 'Poker') {
+                        showScreen('pokerArena');
+                        document.getElementById('pokerResult').innerText = "Draw a card!";
+                        document.getElementById('card').innerText = "🂠";
+                        document.getElementById('card').onclick = window.drawCard;
+                    }
+                } else {
+                    alert("Transaction failed! Try again.");
+                }
+            } else {
+                alert("Insufficient Balance! Please add money.");
+            }
         };
 
-        window.loginUser = () => {
-            let e = document.getElementById('email').value;
-            let p = document.getElementById('password').value; 
-            let msg = document.getElementById('statusMessage');
-            
-            if(!e || !p) { msg.style.color = "#f44336"; msg.innerText = "❌ Email aur Password daalein!"; return; }
-            msg.style.color = "#ffcc00"; msg.innerText = "⏳ Login kar rahe hain...";
-
-            signInWithEmailAndPassword(auth, e, p)
-            .then(() => {
-                msg.style.color = "#4CAF50"; msg.innerText = "✅ Login Successful!";
-                setTimeout(() => { showScreen('gameMenu'); }, 1000); 
-            })
-            .catch(error => {
-                msg.style.color = "#f44336"; msg.innerText = "❌ Galat Email ya Password!";
-            });
-        };
-
-        window.logoutUser = () => {
-            signOut(auth).then(() => {
-                showScreen('loginScreen');
-                document.getElementById('email').value = "";
-                document.getElementById('password').value = "";
-                document.getElementById('statusMessage').innerText = "";
-            });
-        };
-
-        window.showScreen = (screenId) => {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('gameMenu').classList.add('hidden');
-            document.getElementById('ludoArena').classList.add('hidden');
-            document.getElementById('pokerArena').classList.add('hidden');
-            document.getElementById(screenId).classList.remove('hidden');
-        };
-
-        window.playGame = (gameName, entryFee) => {
-            if(gameName === 'Ludo') showScreen('ludoArena');
-            if(gameName === 'Poker') showScreen('pokerArena');
-        };
-
-        window.exitGame = (currentArena) => {
-            showScreen('gameMenu');
-        };
-
-        window.rollDice = () => {
-            let dice = document.getElementById('dice');
+        window.rollDice = async function() {
+            const dice = document.getElementById('dice');
+            const res = document.getElementById('ludoResult');
             dice.classList.add('rolling');
-            setTimeout(() => {
+            res.style.color = "white";
+            res.innerText = "Rolling...";
+            sounds.roll.play();
+            dice.onclick = null;
+
+            setTimeout(async () => {
                 dice.classList.remove('rolling');
-                let num = Math.floor(Math.random() * 6) + 1;
-                document.getElementById('ludoResult').innerText = "Aapka number aaya: " + num;
-            }, 500);
+                const num = Math.floor(Math.random() * 6) + 1;
+                const faces = ['🎲', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+                dice.innerText = faces[num];
+
+                if(num === 6) {
+                    sounds.win.play();
+                    res.style.color = "#4CAF50";
+                    res.innerText = "🎉 BINGO! You won ₹20!";
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        balance: currentBalance + 20,
+                        history: arrayUnion(`+₹20 (Ludo Win) - ${new Date().toLocaleTimeString()}`)
+                    });
+                } else {
+                    sounds.lose.play();
+                    res.style.color = "#f44336";
+                    res.innerText = `You rolled ${num}. Try again!`;
+                }
+                setTimeout(() => { dice.onclick = window.rollDice; }, 1000);
+            }, 800);
         };
 
-        window.drawCard = () => {
-            let cards = ['🂡', '🂢', '🂣', '🂤', '🂥', '🂦', '🂧', '🂨', '🂩', '🂪', '🂫', '🂭', '🂮'];
-            let randomCard = cards[Math.floor(Math.random() * cards.length)];
-            document.getElementById('card').innerText = randomCard;
-            document.getElementById('pokerResult').innerText = "Card nikla: " + randomCard;
-        };
-    </script>
-</body>
-</html>
+        window.drawCard = async function() {
+            const card = document.getElementById('card');
+            const res = document.getElementById('pokerResult');
+            card.classList.add('rolling');
+            res.style.color = "white";
+            res.innerText = "Drawing...";
+            sounds.roll.play();
+            card.onclick = null;
+
+            setTimeout(async () => {
+                card.classList.remove('rolling');
+                const cards = ['🂷', '🃎', '🃝', '🂢', '🂫', '🂺', '🂡', '🃅'];
+                const rc = cards[Math.floor(Math.random() * cards.length)];
+                card.innerText = rc;
+
+                if(rc === '🂡') {
+                    sounds.win.play();
+                    res.style.color = "#4CAF50";
+                    res.innerText = "🎰 JACKPOT! Ace opened! You won ₹100!";
+                    await updateDoc(doc(db, "users", currentUser.uid), {
+                        balance: currentBalance + 100,
+                        history: arrayUnion(`+₹100 (Poker Win) - ${new Date().toLocaleTimeString()}`)
+                    });
+                } else {
+                    sounds.lose.play();
+                    res.style.color = "#f44336";
