@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mega Game Hub - Pro</title>
+    
+    <!-- ICON LAG GAYA - EMOJI WALA -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>" type="image/svg+xml">
+
     <style>
         body { background-color: #0d0d0d; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 10px; }
         .container { max-width: 450px; margin: auto; background: #1a1a1a; padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.8); border: 1px solid #333; }
@@ -176,9 +181,10 @@
           apiKey: "AIzaSyBH_oyJjcXiElydtfMHsEIOGAgzHryy1m8",
           authDomain: "megagamehub-f8ff3.firebaseapp.com",
           projectId: "megagamehub-f8ff3",
-          storageBucket: "megagamehub-f8ff3.firebasestorage.app",
+          storageBucket: "megagamehub-f8ff3.appspot.com",
           messagingSenderId: "918110428941",
-          appId: "1:918110428941:web:3c0de8c0c5a52fca41da44"
+          appId: "1:918110428941:web:3c0de8c0c5a52fca41da44",
+          measurementId: "G-33QNKJNC29"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -189,7 +195,6 @@
         let currentBalance = 0;
         let confirmationResult;
 
-        // ✅ AAPKI UPI AUR WHATSAPP YAHAN ADD HAI
         const ADMIN_WA = "919997210694"; 
         const ADMIN_UPI = "9997210694ybl@ibl";    
 
@@ -239,41 +244,29 @@
             } else { alert("Insufficient Balance! Add Cash"); }
         };
 
-        // ===== MOBILE OTP LOGIN =====
         window.sendOTP = async function() {
             const phone = document.getElementById('phoneNumber').value;
-            if(phone.length !== 10) {
-                document.getElementById('statusMessage').innerText = "⚠️ 10 digit number daalo";
-                return;
-            }
+            if(phone.length !== 10) { document.getElementById('statusMessage').innerText = "⚠️ 10 digit number daalo"; return; }
             const fullPhone = "+91" + phone;
             document.getElementById('statusMessage').innerText = "⏳ OTP bhej rahe hain...";
-            
             try {
                 confirmationResult = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
                 document.getElementById('phoneDiv').classList.add('hidden');
                 document.getElementById('otpDiv').classList.remove('hidden');
                 document.getElementById('statusMessage').innerText = "✅ OTP bhej diya gaya";
-            } catch (error) {
-                document.getElementById('statusMessage').innerText = "❌ Error: " + error.message;
-            }
+            } catch (error) { document.getElementById('statusMessage').innerText = "❌ Error: " + error.message; }
         }
 
         window.verifyOTP = async function() {
             const otp = document.getElementById('otpCode').value;
-            if(otp.length !== 6) {
-                document.getElementById('statusMessage').innerText = "⚠️ 6 digit OTP daalo";
-                return;
-            }
+            if(otp.length !== 6) { document.getElementById('statusMessage').innerText = "⚠️ 6 digit OTP daalo"; return; }
             document.getElementById('statusMessage').innerText = "⏳ Verify ho raha hai...";
             try {
                 const result = await confirmationResult.confirm(otp);
                 currentUser = result.user;
                 showScreen('gameMenu');
                 refreshData();
-            } catch (error) {
-                document.getElementById('statusMessage').innerText = "❌ Galat OTP. Dobara try karo";
-            }
+            } catch (error) { document.getElementById('statusMessage').innerText = "❌ Galat OTP. Dobara try karo"; }
         }
 
         window.goBackToPhone = function() {
@@ -289,14 +282,9 @@
         }
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                showScreen('gameMenu');
-                refreshData();
-            }
+            if (user) { currentUser = user; showScreen('gameMenu'); refreshData(); }
         });
 
-        // ===== WITHDRAWAL SYSTEM =====
         window.requestWithdrawal = async function() {
             const amt = parseInt(document.getElementById('withdrawAmount').value);
             const upi = document.getElementById('upiId').value.trim();
@@ -353,4 +341,4 @@
         }
     </script>
 </body>
-</html>
+                </html>
