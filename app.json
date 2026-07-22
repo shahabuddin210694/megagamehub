@@ -1,0 +1,7 @@
+{
+  "name": "Poker GG",
+  "slug": "poker-gg",
+  "android": {
+    "package": "com.shahabuddin1s.pokergg"
+  }
+}
