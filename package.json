@@ -8,11 +8,11 @@
     "ios": "expo run:ios"
   },
   "dependencies": {
-    "expo": "~50.0.0",
+    "expo": "~57.0.16",
     "expo-asset": "9.0.2",
     "expo-modules-core": "1.11.14",
     "react": "18.2.0",
-    "react-native": "0.73.6",
+    "react-native": "0.87.0",
     "react-native-webview": "^13.6.4"
   }
 }
